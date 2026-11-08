@@ -2,6 +2,7 @@
 
 [![Tests](https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg)](https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml)
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Maheshdasi/FitPlate)
 
 A full-stack web application that helps users manage fitness, nutrition, workouts and progress in one place.
 Users set up a profile, get explainable calorie and macro targets, log food (with an Indian food dataset),
@@ -12,7 +13,18 @@ Built as a final-year B.Tech capstone project.
 
 ![FitPlate dashboard](docs/screenshots/dashboard.png)
 
-## Run it on GitHub (no installation)
+## Deploy it online from GitHub (live link)
+
+The repository includes a [`render.yaml`](render.yaml) blueprint and a [`Dockerfile`](Dockerfile), so it can be deployed straight from GitHub to [Render](https://render.com) on the free plan, with no code editor:
+
+1. Click **[Deploy to Render](https://render.com/deploy?repo=https://github.com/Maheshdasi/FitPlate)** and sign in to Render with GitHub.
+2. Click **Deploy Blueprint**. Render creates the web service (website + API) and a free PostgreSQL database.
+3. The first build takes about 5 to 10 minutes. When it shows **Live**, open the service's `onrender.com` link.
+4. Log in with **`demo@fitness.app`** / **`Demo@1234`**. The API documentation is at `/api/docs`.
+
+Every new push to `main` redeploys automatically. On the free plan the site sleeps after 15 minutes without visitors and takes about a minute to wake up, and the free database expires after 30 days (it can be recreated from the same blueprint).
+
+## Run it on GitHub Codespaces (no installation)
 
 The whole app (website, API and PostgreSQL database) runs inside GitHub Codespaces in your browser.
 
@@ -76,6 +88,8 @@ Frontend (React) ──HTTP/JSON──▶ FastAPI backend ──SQLAlchemy ORM�
 FitPlate/
 ├── .devcontainer/           GitHub Codespaces setup (app + PostgreSQL)
 ├── .github/workflows/       automated tests on every push
+├── Dockerfile               one container: website + API (for online hosting)
+├── render.yaml              Render deployment blueprint
 ├── backend/                 FastAPI application
 │   ├── app/
 │   │   ├── main.py          app, CORS, error handlers

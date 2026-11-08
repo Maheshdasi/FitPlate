@@ -21,6 +21,11 @@ class Settings:
     ]
 
     def __init__(self):
+        # Hosting services such as Render give "postgres://..." or "postgresql://...";
+        # SQLAlchemy needs the driver named explicitly.
+        for prefix in ("postgres://", "postgresql://"):
+            if self.database_url.startswith(prefix):
+                self.database_url = "postgresql+psycopg2://" + self.database_url[len(prefix):]
         if not self.jwt_secret:
             # Development fallback so the project runs out of the box.
             # Always set JWT_SECRET in .env for anything beyond local use.
