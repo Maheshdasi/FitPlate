@@ -1,0 +1,80 @@
+name,category,serving_desc,serving_g,calories,protein,carbs,fat,fiber,diet_type,allergens
+White rice (cooked),Grains,1 cup,150,195,4.0,42.0,0.4,0.6,vegan,
+Brown rice (cooked),Grains,1 cup,150,165,3.8,34.5,1.3,2.7,vegan,
+Roti / chapati (whole wheat),Grains,1 medium,40,110,3.5,22.0,0.8,3.0,vegan,gluten
+Paratha (plain),Grains,1 medium,60,200,4.5,28.0,8.0,3.0,vegetarian,gluten;dairy
+Rolled oats (dry),Grains,40 g,40,152,5.3,26.5,2.7,4.0,vegan,
+Poha (cooked),Grains,1 plate,150,250,5.0,40.0,8.0,2.0,vegan,
+Upma,Grains,1 plate,200,250,6.0,38.0,8.0,3.0,vegan,gluten
+Idli,Grains,2 pieces,80,116,4.0,24.0,0.4,1.2,vegan,
+Plain dosa,Grains,1 dosa,100,168,4.0,29.0,3.7,1.0,vegan,
+Whole wheat bread,Grains,1 slice,30,75,3.6,12.6,1.0,2.0,vegan,gluten
+Quinoa (cooked),Grains,1 cup,185,222,8.1,39.4,3.6,5.2,vegan,
+Vegetable khichdi,Grains,1 bowl,200,230,8.0,38.0,5.0,4.0,vegetarian,dairy
+Vegetable biryani,Grains,1 plate,250,400,9.0,60.0,13.0,4.0,vegetarian,dairy
+Chicken biryani,Grains,1 plate,300,520,26.0,62.0,18.0,3.0,non_vegetarian,dairy
+Dal (toor / arhar),Pulses,1 bowl,150,170,9.0,22.0,5.0,5.0,vegan,
+Moong dal,Pulses,1 bowl,150,150,10.0,21.0,3.0,5.0,vegan,
+Rajma curry,Pulses,1 bowl,150,190,9.0,26.0,6.0,7.0,vegan,
+Chole (chickpea curry),Pulses,1 bowl,150,220,9.0,28.0,8.0,8.0,vegan,
+Sambar,Pulses,1 bowl,150,110,5.0,15.0,3.5,4.0,vegan,
+Sprouts salad,Pulses,1 cup,100,110,7.5,18.0,0.8,4.0,vegan,
+Roasted chana,Pulses,50 g,50,185,10.0,29.0,3.0,8.5,vegan,
+Boiled chickpeas,Pulses,1 cup,150,246,13.4,41.0,3.9,11.4,vegan,
+Tofu (firm),Pulses,100 g,100,144,15.6,3.0,8.7,2.3,vegan,soy
+Soya chunks (dry),Pulses,30 g,30,104,15.6,9.9,0.2,3.9,vegan,soy
+Hummus,Pulses,50 g,50,83,4.0,7.0,5.0,3.0,vegan,sesame
+Paneer,Dairy,100 g,100,265,18.0,3.5,20.0,0.0,vegetarian,dairy
+Curd (dahi),Dairy,1 bowl,200,122,7.0,9.4,6.6,0.0,vegetarian,dairy
+Greek yogurt (low fat),Dairy,150 g,150,110,15.0,6.0,1.0,0.0,vegetarian,dairy
+Toned milk,Dairy,1 glass (250 ml),250,145,8.0,11.5,7.5,0.0,vegetarian,dairy
+Buttermilk (chaas),Dairy,1 glass (250 ml),250,40,2.5,4.5,1.2,0.0,vegetarian,dairy
+Ghee,Dairy,1 tsp,5,45,0.0,0.0,5.0,0.0,vegetarian,dairy
+Cheese slice,Dairy,1 slice,20,62,3.8,0.5,5.0,0.0,vegetarian,dairy
+Whey protein,Dairy,1 scoop,30,120,24.0,3.0,1.5,0.0,vegetarian,dairy
+Masala chai (with sugar),Beverages,1 cup,150,90,2.5,13.0,3.0,0.0,vegetarian,dairy
+Black coffee,Beverages,1 cup,240,2,0.3,0.0,0.0,0.0,vegan,
+Coconut water,Beverages,1 glass (240 ml),240,46,1.7,9.0,0.5,2.6,vegan,
+Boiled egg,Eggs,1 large,50,78,6.3,0.6,5.3,0.0,eggetarian,eggs
+Egg white,Eggs,1 large,33,17,3.6,0.2,0.1,0.0,eggetarian,eggs
+Omelette (2 eggs),Eggs,1 omelette,110,200,13.0,1.5,15.5,0.3,eggetarian,eggs
+Chicken breast (grilled),Non-veg,100 g,100,165,31.0,0.0,3.6,0.0,non_vegetarian,
+Chicken curry,Non-veg,1 bowl,200,300,26.0,8.0,18.0,1.5,non_vegetarian,
+Chicken tikka,Non-veg,100 g,100,170,27.0,3.0,6.0,0.5,non_vegetarian,dairy
+Fish curry,Non-veg,1 bowl,200,240,24.0,6.0,13.0,1.0,non_vegetarian,fish
+Grilled fish,Non-veg,100 g,100,140,20.0,0.0,6.0,0.0,non_vegetarian,fish
+Mutton curry,Non-veg,1 bowl,200,380,28.0,6.0,27.0,1.0,non_vegetarian,
+Prawns (cooked),Non-veg,100 g,100,99,24.0,0.2,0.3,0.0,non_vegetarian,shellfish
+Tuna (canned in water),Non-veg,100 g,100,116,26.0,0.0,1.0,0.0,non_vegetarian,fish
+Mixed vegetable curry,Vegetables,1 bowl,150,120,3.0,12.0,7.0,4.0,vegan,
+Palak sabzi,Vegetables,1 bowl,150,100,4.0,8.0,6.0,4.0,vegan,
+Bhindi sabzi,Vegetables,1 bowl,150,130,3.0,12.0,8.0,5.0,vegan,
+Aloo sabzi,Vegetables,1 bowl,150,180,3.0,25.0,8.0,3.0,vegan,
+Cucumber salad,Vegetables,1 cup,120,20,0.8,4.0,0.1,0.6,vegan,
+Mixed green salad,Vegetables,1 bowl,150,35,2.0,7.0,0.3,3.0,vegan,
+Broccoli (steamed),Vegetables,1 cup,90,31,2.5,6.0,0.3,2.4,vegan,
+Sweet potato (boiled),Vegetables,1 medium,150,135,2.4,31.0,0.2,4.5,vegan,
+Banana,Fruits,1 medium,118,105,1.3,27.0,0.4,3.1,vegan,
+Apple,Fruits,1 medium,182,95,0.5,25.0,0.3,4.4,vegan,
+Orange,Fruits,1 medium,130,62,1.2,15.4,0.2,3.1,vegan,
+Papaya,Fruits,1 cup,145,62,0.7,15.7,0.4,2.5,vegan,
+Mango,Fruits,1 cup,165,99,1.4,24.7,0.6,2.6,vegan,
+Guava,Fruits,1 medium,100,68,2.6,14.3,1.0,5.4,vegan,
+Watermelon,Fruits,1 cup,150,46,0.9,11.5,0.2,0.6,vegan,
+Pomegranate,Fruits,1/2 cup,87,72,1.5,16.0,1.0,3.5,vegan,
+Almonds,Nuts & seeds,a handful (28 g),28,164,6.0,6.0,14.0,3.5,vegan,nuts
+Walnuts,Nuts & seeds,a handful (28 g),28,185,4.3,3.9,18.5,1.9,vegan,nuts
+Cashews,Nuts & seeds,a handful (28 g),28,157,5.2,8.6,12.4,0.9,vegan,nuts
+Peanuts (roasted),Nuts & seeds,a handful (28 g),28,166,7.5,6.0,14.0,2.4,vegan,peanuts
+Peanut butter,Nuts & seeds,1 tbsp,16,94,4.0,3.0,8.0,1.0,vegan,peanuts
+Chia seeds,Nuts & seeds,1 tbsp,12,58,2.0,5.0,3.7,4.1,vegan,
+Flax seeds,Nuts & seeds,1 tbsp,10,53,1.8,2.9,4.2,2.7,vegan,
+Makhana (roasted),Snacks,1 cup,30,105,3.0,20.0,0.5,2.0,vegan,
+Dhokla,Snacks,2 pieces,100,160,6.0,22.0,5.0,2.0,vegan,
+Samosa,Snacks,1 piece,100,260,4.0,30.0,14.0,2.5,vegan,gluten
+Vegetable sandwich,Snacks,1 sandwich,150,230,7.0,34.0,7.0,4.0,vegetarian,gluten;dairy
+Protein bar,Snacks,1 bar,60,220,20.0,22.0,7.0,5.0,vegetarian,dairy;soy
+Dark chocolate (70%),Snacks,2 squares (20 g),20,120,1.6,9.0,8.5,2.2,vegetarian,
+Coconut chutney,Snacks,2 tbsp,30,80,1.0,3.0,7.5,2.0,vegan,
+Honey,Others,1 tbsp,21,64,0.1,17.0,0.0,0.0,vegetarian,
+Olive oil,Others,1 tbsp,14,119,0.0,0.0,13.5,0.0,vegan,
