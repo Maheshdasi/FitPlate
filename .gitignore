@@ -15,7 +15,8 @@ dist/
 
 # OS / editors
 .DS_Store
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 
 # Test coverage data
