@@ -9,12 +9,20 @@ echo ============================================================
 echo.
 
 rem ---------- 1. Check Python ----------
+rem Prefer regular Python 3.13 or 3.12 (never the experimental free-threaded "3.13t" build)
 set "PY="
-where py >nul 2>nul && set "PY=py -3"
+py -3.13 -c "import sys" >nul 2>nul && set "PY=py -3.13"
+if not defined PY (py -3.12 -c "import sys" >nul 2>nul && set "PY=py -3.12")
 if not defined PY (where python >nul 2>nul && set "PY=python")
 if not defined PY (
   echo [X] Python was not found. Install Python 3.12 from https://www.python.org/downloads/
   echo     and tick "Add python.exe to PATH" during installation. Then run this file again.
+  goto :fail
+)
+%PY% -c "import sys, sysconfig; sys.exit(1 if sysconfig.get_config_var('Py_GIL_DISABLED') else 0)"
+if errorlevel 1 (
+  echo [X] Only the free-threaded Python build was found. Re-run the Python installer, choose Modify,
+  echo     and make sure the normal Python 3.13 is installed. Then run this file again.
   goto :fail
 )
 echo [OK] Python found:
@@ -64,6 +72,13 @@ echo.
 rem ---------- 5. Backend ----------
 echo Setting up the backend (this can take a few minutes the first time)...
 cd /d "%~dp0backend"
+if exist venv (
+  venv\Scripts\python.exe -c "import sys, sysconfig; sys.exit(1 if sysconfig.get_config_var('Py_GIL_DISABLED') or sys.version_info[:2] not in [(3, 12), (3, 13)] else 0)" >nul 2>nul
+  if errorlevel 1 (
+    echo Removing an old Python environment that used the wrong Python version...
+    rmdir /s /q venv
+  )
+)
 if not exist venv (
   %PY% -m venv venv
   if errorlevel 1 goto :fail
