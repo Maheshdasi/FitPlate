@@ -1,4 +1,7 @@
-# AI Fitness & Nutrition Platform (FitPlate)
+# FitPlate: AI Fitness & Nutrition Platform
+
+[![Tests](https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg)](https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1)
 
 A full-stack web application that helps users manage fitness, nutrition, workouts and progress in one place.
 Users set up a profile, get explainable calorie and macro targets, log food (with an Indian food dataset),
@@ -6,6 +9,34 @@ receive machine-learning meal and workout recommendations, track progress with c
 and ask an AI assistant questions about their day.
 
 Built as a final-year B.Tech capstone project.
+
+![FitPlate dashboard](docs/screenshots/dashboard.png)
+
+## Run it on GitHub (no installation)
+
+The whole app (website, API and PostgreSQL database) runs inside GitHub Codespaces in your browser.
+
+1. Click **[Open in GitHub Codespaces](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1)** and then **Create codespace** (you need to be signed in to GitHub).
+2. Wait about 3 to 5 minutes the first time while it installs everything and loads the demo data. You can watch the progress in the terminal.
+3. The website opens in a new browser tab. If it doesn't, open the **PORTS** tab at the bottom and click the globe icon next to port **5173**.
+4. Log in with the demo account: **`demo@fitness.app`** / **`Demo@1234`** (4 months of sample history), or click "Get started" to create your own account.
+
+The API documentation (Swagger) is on port **8000** at `/docs`. Every push also runs the 26 automated tests on GitHub Actions; see the **Tests** badge above.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Landing page](docs/screenshots/landing.png) | ![Calorie calculator](docs/screenshots/calculator.png) |
+| Landing page | Calorie & macro calculator (formula-based, every step shown) |
+| ![Food tracker](docs/screenshots/food-tracker.png) | ![Meal plan](docs/screenshots/meal-plan.png) |
+| Food tracker with daily totals | Meal recommendations (content-based ML) |
+| ![Workout plan](docs/screenshots/workout-plan.png) | ![Progress](docs/screenshots/progress.png) |
+| Weekly workout plan (rules + similarity ranking) | Progress charts with regression trend |
+| ![Weekly insights](docs/screenshots/weekly-insights.png) | ![Fitness assistant](docs/screenshots/assistant.png) |
+| Weekly insights and K-Means habit pattern | Fitness assistant using the user's own data |
+
+<p align="center"><img src="docs/screenshots/mobile-dashboard.png" alt="Dashboard on a phone" width="300"><br>Responsive layout on a phone</p>
 
 | Layer | Technology |
 |---|---|
@@ -42,7 +73,9 @@ Frontend (React) ──HTTP/JSON──▶ FastAPI backend ──SQLAlchemy ORM�
 ## Project structure
 
 ```
-ai-fitness-platform/
+FitPlate/
+├── .devcontainer/           GitHub Codespaces setup (app + PostgreSQL)
+├── .github/workflows/       automated tests on every push
 ├── backend/                 FastAPI application
 │   ├── app/
 │   │   ├── main.py          app, CORS, error handlers
@@ -70,7 +103,8 @@ ai-fitness-platform/
 └── docs/
     ├── API.md               endpoint reference
     ├── ML_AND_ALGORITHMS.md formula vs rules vs ML
-    └── PROJECT_REPORT.md    capstone report sections
+    ├── PROJECT_REPORT.md    capstone report sections
+    └── screenshots/         images used in this README
 ```
 
 ---
@@ -140,7 +174,7 @@ API docs (Swagger UI): http://localhost:8000/docs
 ```bash
 cd frontend
 npm install
-cp .env.example .env              # VITE_API_URL=http://localhost:8000
+cp .env.example .env              # leave VITE_API_URL empty: /api is forwarded to port 8000
 npm run dev
 ```
 
@@ -187,7 +221,7 @@ The tests use the separate `fitness_test` database (override with `TEST_DATABASE
 
 | Problem | Fix |
 |---|---|
-| `Cannot reach the server` in the app | Check the backend is running on port 8000 and `VITE_API_URL` matches. |
+| `Cannot reach the server` in the app | Check the backend is running on port 8000. Leave `VITE_API_URL` in `frontend/.env` empty, or set it to `http://localhost:8000`. |
 | `password authentication failed` | Check `DATABASE_URL` in `backend/.env` matches your PostgreSQL user. |
 | CORS error in the browser console | Add your frontend URL to `CORS_ORIGINS` in `backend/.env` and restart. |
 | Charts empty for a new user | Expected. Log food, weight and workouts for a few days, or use the demo account. |

@@ -1,4 +1,6 @@
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+// By default the website calls '/api', which the Vite server forwards to the backend on port 8000.
+// This keeps everything on one address, which is what GitHub Codespaces needs.
+const API_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '')
 const TOKEN_KEY = 'fitplate_token'
 
 export const tokenStore = {
@@ -25,7 +27,7 @@ let onUnauthorized = () => {}
 export const setUnauthorizedHandler = (fn) => { onUnauthorized = fn }
 
 export async function api(path, { method = 'GET', body, params } = {}) {
-  const url = new URL(API_URL + path)
+  const url = new URL(API_URL + path, window.location.origin)
   Object.entries(params || {}).forEach(([k, v]) => {
     if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v)
   })
