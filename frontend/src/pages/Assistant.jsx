@@ -94,7 +94,7 @@ export default function Assistant() {
           </form>
         </div>
       </div>
-      <div className="mt-3"><Disclaimer>The assistant gives general fitness and nutrition guidance only. It cannot diagnose conditions or recommend treatment — please consult a doctor for health concerns.</Disclaimer></div>
+      <div className="mt-3"><Disclaimer>The assistant gives general fitness and nutrition guidance only. It cannot diagnose conditions or recommend treatment. Please consult a doctor for health concerns.</Disclaimer></div>
     </div>
   )
 }

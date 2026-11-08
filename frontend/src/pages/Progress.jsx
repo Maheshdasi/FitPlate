@@ -105,7 +105,7 @@ export default function Progress() {
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="Weight change" icon={Scale} tone="text-ink"
-              value={data.totals.weight_change == null ? '—' : `${data.totals.weight_change > 0 ? '+' : ''}${data.totals.weight_change}`} unit="kg"
+              value={data.totals.weight_change == null ? '-' : `${data.totals.weight_change > 0 ? '+' : ''}${data.totals.weight_change}`} unit="kg"
               sub={`Over the selected ${RANGES.find((r) => r.value === days).label}`} />
             <Stat label="Average calories" icon={Utensils} value={data.totals.avg_calories.toLocaleString('en-IN')} unit="kcal"
               sub={`Goal ${data.targets.daily_calories} kcal, ${data.totals.days_logged} days logged`} />
@@ -228,7 +228,7 @@ export default function Progress() {
                       <tr key={m.date}>
                         <td className="px-5 py-2.5 font-semibold">{shortDate(m.date)}</td>
                         <td className="px-5 py-2.5">{m.weight} kg</td>
-                        {['waist', 'chest', 'hips', 'arms'].map((k) => <td key={k} className="px-5 py-2.5">{m[k] ? `${m[k]} cm` : '—'}</td>)}
+                        {['waist', 'chest', 'hips', 'arms'].map((k) => <td key={k} className="px-5 py-2.5">{m[k] ? `${m[k]} cm` : '-'}</td>)}
                       </tr>
                     ))}
                   </tbody>

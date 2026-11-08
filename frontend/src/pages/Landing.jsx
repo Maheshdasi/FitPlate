@@ -6,9 +6,9 @@ import { useAuth } from '../context/AuthContext'
 
 const BENEFITS = [
   { icon: Calculator, title: 'Targets from your own numbers',
-    text: 'Daily calories, protein, carbs and fat worked out from your age, height, weight, activity and goal — with every step shown.' },
+    text: 'Daily calories, protein, carbs and fat worked out from your age, height, weight, activity and goal, with every step shown.' },
   { icon: UtensilsCrossed, title: 'Food logging that fits Indian meals',
-    text: 'Dal, roti, idli, paneer, curd and more, measured in bowls, pieces and cups — the way you actually eat.' },
+    text: 'Dal, roti, idli, paneer, curd and more, measured in bowls, pieces and cups, the way you actually eat.' },
   { icon: Salad, title: 'Meals picked for what is left today',
     text: 'Suggestions respect your diet type and allergies, and adjust to the calories and protein you still need.' },
   { icon: Dumbbell, title: 'A workout plan for your week',
@@ -64,7 +64,7 @@ export default function Landing() {
             them, and explains your week back to you in plain language.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to={start} className="btn-primary px-6 py-3 text-base">Get started — it's free</Link>
+            <Link to={start} className="btn-primary px-6 py-3 text-base">Get started for free</Link>
             <Link to="/login" state={{ demo: true }} className="btn-secondary px-6 py-3 text-base">Try the demo account</Link>
           </div>
         </div>
@@ -90,7 +90,7 @@ export default function Landing() {
           </div>
           <div className="mt-6 rounded-lg bg-brand-50 p-3 text-sm">
             <p className="font-semibold text-brand-900">Suggested snack</p>
-            <p className="text-brand-900/80">Sprouts chaat — 130 kcal, 8 g protein. Helps close your 35 g protein gap.</p>
+            <p className="text-brand-900/80">Sprouts chaat: 130 kcal, 8 g protein. Helps close your 35 g protein gap.</p>
           </div>
         </div>
       </section>
@@ -111,7 +111,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* How it works — a real sequence, so it is numbered */}
+      {/* How it works: a real sequence, so it is numbered */}
       <section className="mx-auto max-w-6xl px-5 py-16">
         <h2 className="text-3xl font-extrabold">How it works</h2>
         <ol className="mt-8 grid gap-6 md:grid-cols-4">

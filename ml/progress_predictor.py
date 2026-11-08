@@ -1,5 +1,5 @@
 """
-WEIGHT TREND PREDICTION — Linear Regression (machine learning, supervised)
+WEIGHT TREND PREDICTION: Linear Regression (machine learning, supervised)
 
 Fits weight = a + b * day on the user's recent weight logs.
   * b * 7          -> average weekly change (kg/week)

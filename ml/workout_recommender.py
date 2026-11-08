@@ -1,5 +1,5 @@
 """
-WORKOUT RECOMMENDATION — rule-based split + similarity-based exercise choice
+WORKOUT RECOMMENDATION: rule-based split + similarity-based exercise choice
 
 Rule-based part
   * Weekly split chosen from the number of workout days and level

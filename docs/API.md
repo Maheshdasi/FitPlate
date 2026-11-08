@@ -192,7 +192,7 @@ so they stay stable for the day.
 ### `POST /workout-log` → 201
 
 `{ "exercise_id": 3, "completed": true, "sets_completed": 3, "day_number": 1, "log_date": "2026-10-20" }`
-— one row per user, date and exercise (sending `completed: false` un-ticks it).
+One row per user, date and exercise (sending `completed: false` un-ticks it).
 
 ### `GET /workout-log/history?days=30&date=`
 
@@ -205,7 +205,7 @@ Completed exercises grouped by day, newest first.
 ### `POST /progress/weight` → 201
 
 `{ "weight_kg": 78.0, "waist_cm": 89, "chest_cm": 99.5, "hips_cm": 97, "arms_cm": 33.6, "log_date": "2026-10-20" }`
-— one entry per day (updates if it exists). The latest entry becomes the profile weight.
+One entry per day (updates if it exists). The latest entry becomes the profile weight.
 
 ### `GET /progress/weight?days=180` · `DELETE /progress/weight/{id}`
 

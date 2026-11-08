@@ -132,7 +132,7 @@ def replace_meal(db: Session, user: User, d: date, meal_type: str) -> dict | Non
         excluded.add(rec.meal_id)
     ranked = rank_meals(db, user, d, meal_type, exclude_ids=excluded)
     if not ranked:
-        # Every suitable meal has been shown once — start the cycle again
+        # Every suitable meal has been shown once, so start the cycle again
         excluded = {rec.meal_id} if rec else set()
         ranked = rank_meals(db, user, d, meal_type, exclude_ids=excluded)
     if not ranked:

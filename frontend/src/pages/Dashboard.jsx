@@ -94,7 +94,7 @@ export default function Dashboard() {
                 {Object.entries(data.by_meal).map(([m, v]) => (
                   <div key={m}>
                     <p className="text-xs text-muted">{MEAL_LABELS[m]}</p>
-                    <p className="num text-sm font-bold">{v.calories ? Math.round(v.calories) : '—'}</p>
+                    <p className="num text-sm font-bold">{v.calories ? Math.round(v.calories) : '-'}</p>
                   </div>
                 ))}
               </div>

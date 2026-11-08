@@ -126,8 +126,8 @@ def calculate_targets(*, weight_kg, height_cm, age, gender, activity_level,
 
     explanation = [
         f"BMI = {weight_kg} kg / ({height_cm / 100:.2f} m)² = {bmi} ({bmi_category(bmi)}).",
-        f"BMR (Mifflin-St Jeor) = {round(bmr)} kcal — the energy your body uses at complete rest.",
-        f"TDEE = BMR × {factor} ({ACTIVITY_LABELS[activity_level]}) = {round(tdee)} kcal — your estimated daily energy use.",
+        f"BMR (Mifflin-St Jeor) = {round(bmr)} kcal, the energy your body uses at complete rest.",
+        f"TDEE = BMR × {factor} ({ACTIVITY_LABELS[activity_level]}) = {round(tdee)} kcal, your estimated daily energy use.",
         f"Daily calories = TDEE {goal_text} → {round(calories)} kcal.",
         f"Protein = {protein_per_kg} g per kg × {weight_kg} kg = {round(protein_g)} g.",
         f"Fat = 25% of calories ÷ 9 kcal/g = {round(fat_g)} g.",

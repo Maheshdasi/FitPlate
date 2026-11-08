@@ -1,5 +1,5 @@
 """
-USER BEHAVIOUR CLUSTERING — K-Means (machine learning, unsupervised)
+USER BEHAVIOUR CLUSTERING: K-Means (machine learning, unsupervised)
 
 Each user-week is described by four numbers between 0 and 1:
   calorie_adherence  share of logged days within ±10% of the calorie target

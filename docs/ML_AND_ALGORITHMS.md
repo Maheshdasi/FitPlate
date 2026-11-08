@@ -42,11 +42,11 @@ Protein = 1.8 × 78 = 140 g · Fat = 545 ÷ 9 = 61 g · Carbs = (2181 − 560 �
 
 ## 2. Meal recommendation (content-based filtering)
 
-1. **Filter (rules)** — keep meals whose diet type is allowed (vegan ⊂ vegetarian ⊂ eggetarian ⊂ non-vegetarian)
+1. **Filter (rules)**: keep meals whose diet type is allowed (vegan ⊂ vegetarian ⊂ eggetarian ⊂ non-vegetarian)
    and that share no allergen with the user.
-2. **Slot target (rules)** — remaining calories and protein for the day are divided among meal slots not yet eaten
+2. **Slot target (rules)**: remaining calories and protein for the day are divided among meal slots not yet eaten
    in proportion 25 / 35 / 30 / 10 % (breakfast / lunch / dinner / snacks).
-3. **Portion scaling** — `portion = clip(round4(target_kcal / meal_kcal), 0.75, 1.5)`.
+3. **Portion scaling**: `portion = clip(round4(target_kcal / meal_kcal), 0.75, 1.5)`.
 4. **Scoring** for each candidate *m*:
 
 ```
@@ -66,7 +66,7 @@ ten foods they log most (implicit feedback), so recommendations personalise as t
 
 ## 3. Workout recommendation
 
-**Rules — weekly split**
+**Rules: weekly split**
 
 | Days | Split |
 |---|---|
@@ -80,7 +80,7 @@ Weight-loss goal adds a cardio finisher to each day. Sets/reps/rest by goal: los
 gain 4×8-10/90 s, muscle 4×8-12/75 s, maintenance and general 3×10-12/60 s; beginners do one set fewer.
 Users never get exercises above their level; home and bodyweight users get no gym equipment.
 
-**ML — similarity ranking.** Each exercise becomes a 16-dimension vector
+**ML: similarity ranking.** Each exercise becomes a 16-dimension vector
 `[difficulty one-hot (3) | equipment one-hot (5) | strength, cardio | compound | goal tags (5)]`.
 The user is encoded in the same space (level preference weights, equipment weights from workout type,
 cardio and compound preference, goal-tag weights). Exercises are ranked by cosine similarity.
@@ -89,13 +89,13 @@ cardio and compound preference, goal-tag weights). Exercises are ranked by cosin
 `0.7·(similarity − 0.15·times_used_this_week) − 0.3·(1 if same target muscle as an already chosen exercise)`,
 so sessions are relevant, varied within a day, and rotate across days.
 
-## 4. Weight trend — linear regression
+## 4. Weight trend: linear regression
 
 `weight = a + b·day` fitted on entries from the last 60 days (needs ≥ 4 entries over ≥ 7 days).
 Reported: weekly change `7b`, the prediction 28 days ahead, R² as confidence (high ≥ 0.7, medium ≥ 0.4),
 and the date the target would be reached if the trend continues and is moving toward it (hidden if > 2 years).
 
-## 5. Behaviour clustering — K-Means
+## 5. Behaviour clustering: K-Means
 
 Each user-week is a vector `[calorie adherence, protein ratio, workout ratio, logging ratio]` (0–1).
 Because a project has few real users, the model is trained on a documented synthetic population
@@ -121,14 +121,14 @@ No rule makes medical claims.
 
 ## 7. AI assistant
 
-1. **Safety rule first** — a regular expression for conditions, medicines, injuries, symptoms, pregnancy, etc.
+1. **Safety rule first**: a regular expression for conditions, medicines, injuries, symptoms, pregnancy, etc.
    returns a fixed "please consult a doctor or dietitian" reply.
-2. **Intent classification** — character 2–4-gram TF-IDF + logistic regression (C = 8) trained on 75 labelled
+2. **Intent classification**: character 2–4-gram TF-IDF + logistic regression (C = 8) trained on 75 labelled
    example questions across 8 intents. Character n-grams tolerate typos. Below 25% confidence the assistant asks
    the user to rephrase.
-3. **Entity extraction** — meal slot (or time of day), calorie numbers ("500 calories"), diet override
+3. **Entity extraction**: meal slot (or time of day), calorie numbers ("500 calories"), diet override
    ("vegan", "vegetarian"), "protein".
-4. **Answer** — templates filled with the user's targets, today's totals, the meal recommender, the food
+4. **Answer**: templates filled with the user's targets, today's totals, the meal recommender, the food
    database (highest protein per calorie within the budget), today's workout session and the regression trend.
 
 It runs fully offline, so the demo works without an external API key. Connecting a large language model is

@@ -1,4 +1,4 @@
-# AI Fitness & Nutrition Platform — Project Report
+# AI Fitness & Nutrition Platform: Project Report
 
 Final-year B.Tech capstone project.
 Detailed algorithm descriptions: [ML_AND_ALGORITHMS.md](ML_AND_ALGORITHMS.md). API reference: [API.md](API.md).
@@ -18,7 +18,7 @@ dal, roti, idli, curd rice and paneer dishes are hard to log accurately. Many ap
 
 **Goal:** build a single web platform that turns a user's profile into explainable daily targets, recommends
 meals and workouts that fit those targets and the user's constraints (diet type, allergies, equipment, level),
-tracks progress, and summarises each week in plain language — using machine learning only where it adds value,
+tracks progress, and summarises each week in plain language, using machine learning only where it adds value,
 and clearly separating formulas, rules and ML.
 
 ## 2. Literature survey
@@ -57,10 +57,10 @@ improves list quality. Unsupervised clustering is a common way to segment behavi
 
 Users typically rely on a combination of:
 
-- **Standalone calculators** — give a calorie number but no tracking and often no explanation.
-- **General food-logging apps** — large databases, but Indian home-cooked meals often need manual entries; recommendations, if any, are generic.
-- **Workout apps** — fixed programmes not linked to nutrition or the user's equipment and available days.
-- **Manual records** — spreadsheets or notebooks for weight with no analysis.
+- **Standalone calculators**: give a calorie number but no tracking and often no explanation.
+- **General food-logging apps**: large databases, but Indian home-cooked meals often need manual entries; recommendations, if any, are generic.
+- **Workout apps**: fixed programmes not linked to nutrition or the user's equipment and available days.
+- **Manual records**: spreadsheets or notebooks for weight with no analysis.
 
 **Limitations:** data is spread across tools; targets are not explained; recommendations ignore what the user
 already ate today; diet type and allergies are often filters the user must apply manually; there is no
@@ -171,18 +171,18 @@ All tables have `created_at`; all user-owned rows cascade on user deletion.
 
 An iterative, module-by-module approach was followed:
 
-1. **Requirements** — features and constraints from the problem statement; user workflow defined as
+1. **Requirements**: features and constraints from the problem statement; user workflow defined as
    registration → profile → targets → food → recommendations → workouts → progress → insights.
-2. **Data preparation** — curated datasets: 79 foods (mostly Indian staples) with per-serving nutrients,
+2. **Data preparation**: three curated datasets covering 79 foods (mostly Indian staples) with per-serving nutrients,
    diet types and allergens; 49 meal templates with ingredients, instructions and macros; 72 exercises with
    category, muscle, equipment, difficulty and goal tags.
-3. **Design** — database schema with constraints, REST API contract, separated ML layer, UI wireframes.
-4. **Implementation** — formulas first (deterministic, testable), then rules, then ML ranking on top of
+3. **Design**: database schema with constraints, REST API contract, separated ML layer, UI wireframes.
+4. **Implementation**: formulas first (deterministic, testable), then rules, then ML ranking on top of
    rule-filtered candidates, so ML can never override a safety constraint.
-5. **Integration** — React pages connected through a small fetch client; the client sends its local date so
+5. **Integration**: React pages connected through a small fetch client; the client sends its local date so
    "today" is correct in any timezone.
-6. **Testing and evaluation** — automated API tests, ML evaluation, end-to-end browser tests on desktop and mobile.
-7. **Demo data** — a seeded user with 120 days of realistic history for the project review.
+6. **Testing and evaluation**: automated API tests, ML evaluation, end-to-end browser tests on desktop and mobile.
+7. **Demo data**: a seeded user with 120 days of realistic history for the project review.
 
 ## 10. Algorithms
 
@@ -305,7 +305,7 @@ dashboard → mobile menu. **No JavaScript errors.** All 14 pages were also revi
 - Weekly insights produce readable statements, for example for the demo user:
   "You stayed close to your calorie target on 7 out of 7 days.",
   "Your average protein intake was 104 g, below your target of 140 g.",
-  "You completed 4 workouts this week (plan: 4)." — with the suggestion to add a protein-rich afternoon snack.
+  "You completed 4 workouts this week (plan: 4)." It then suggests adding a protein-rich afternoon snack.
 - The regression trend for the demo user shows about −0.24 kg/week with an estimated target date, labelled as a trend rather than a promise.
 - Responsive layout tested at mobile and desktop widths.
 

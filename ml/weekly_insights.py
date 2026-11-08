@@ -1,5 +1,5 @@
 """
-WEEKLY INSIGHTS — Pandas/NumPy data analysis + rule-based suggestions
+WEEKLY INSIGHTS: Pandas/NumPy data analysis + rule-based suggestions
                   + K-Means behaviour cluster
 
 1. Pandas aggregates the week's daily records (calories, protein, water,
@@ -50,7 +50,7 @@ def analyse_week(days: list[dict], targets: dict, planned_workouts: int,
     # --- Food logging & calories
     if logged_days == 0:
         add("warn", "No food was logged this week, so calorie insights are not available.")
-        suggestions.append("Start by logging just one meal a day — breakfast is the easiest to remember.")
+        suggestions.append("Start by logging just one meal a day. Breakfast is the easiest to remember.")
     else:
         add("good" if len(within) >= 4 else "info",
             f"You stayed close to your calorie target on {len(within)} out of 7 days.")
@@ -68,8 +68,8 @@ def analyse_week(days: list[dict], targets: dict, planned_workouts: int,
         ratio = avg_protein / prot_target if prot_target else 0
         if ratio < 0.9:
             add("warn", f"Your average protein intake was {round(avg_protein)} g, below your target of {prot_target} g.")
-            suggestions.append("Try adding a protein-rich snack in the afternoon — roasted chana, curd, paneer, "
-                               "eggs or a sprouts salad — to help you reach your protein target.")
+            suggestions.append("Try adding a protein-rich snack in the afternoon (roasted chana, curd, paneer, "
+                               "eggs or a sprouts salad) to help you reach your protein target.")
         else:
             add("good", f"Your average protein intake was {round(avg_protein)} g, meeting your target of {prot_target} g.")
 
@@ -98,7 +98,7 @@ def analyse_week(days: list[dict], targets: dict, planned_workouts: int,
                         f"{round(water_target / 1000, 1)} L.")
             suggestions.append("Keep a water bottle at your desk and finish one before lunch.")
         else:
-            add("good", f"Average water intake was {round(avg_water / 1000, 1)} L — well done.")
+            add("good", f"Average water intake was {round(avg_water / 1000, 1)} L. Well done.")
 
     if not suggestions:
         suggestions.append("Great week. Keep the same routine and review your targets if your weight changes.")

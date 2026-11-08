@@ -26,16 +26,16 @@ Frontend (React) ──HTTP/JSON──▶ FastAPI backend ──SQLAlchemy ORM�
 
 ## Features
 
-- **Registration, login and profile setup** — 5-step profile wizard (body, activity, goal, diet, allergies, training); editable later.
-- **Calorie & macro calculator** — BMI, BMR (Mifflin-St Jeor), TDEE, goal-adjusted calories, protein/carbs/fat, with every step shown and a medical disclaimer. "Try different values" mode.
-- **Food tracker** — search 79 foods, choose servings and meal type, daily goal / consumed / remaining with progress bars and charts, day-by-day navigation.
-- **Meal recommendations (ML)** — content-based recommender filtered by diet type and allergies, ranked for the calories and protein left today, with portion scaling, reasons, ingredients, preparation steps, "Show another" and "Add to food log".
-- **Workout recommendations (rules + ML)** — weekly split from available days; exercises ranked by cosine similarity with MMR diversity; sets, reps, rest and difficulty.
-- **Workout tracker** — tick off exercises, 14-day calendar, recent workouts.
-- **Dashboard** — calories, remaining, protein, water (+250 ml), weight vs target, workout status, today's workout, suggested meal, and charts for calories, macros, weight and workout consistency.
-- **Progress** — log weight and body measurements; charts for weight (with regression trend forecast), calories vs goal, protein vs goal, workout consistency and water over 7 days / 30 days / 3 months / 6 months.
-- **Weekly insights** — Pandas analysis of the week, plain-language insights, practical suggestions, and a K-Means behaviour cluster.
-- **AI fitness assistant** — offline intent classifier (TF-IDF + logistic regression) that answers using the user's profile and today's log; refuses medical questions.
+- **Registration, login and profile setup**: 5-step profile wizard (body, activity, goal, diet, allergies, training); editable later.
+- **Calorie & macro calculator**: BMI, BMR (Mifflin-St Jeor), TDEE, goal-adjusted calories, protein/carbs/fat, with every step shown and a medical disclaimer. "Try different values" mode.
+- **Food tracker**: search 79 foods, choose servings and meal type, daily goal / consumed / remaining with progress bars and charts, day-by-day navigation.
+- **Meal recommendations (ML)**: content-based recommender filtered by diet type and allergies, ranked for the calories and protein left today, with portion scaling, reasons, ingredients, preparation steps, "Show another" and "Add to food log".
+- **Workout recommendations (rules + ML)**: weekly split from available days; exercises ranked by cosine similarity with MMR diversity; sets, reps, rest and difficulty.
+- **Workout tracker**: tick off exercises, 14-day calendar, recent workouts.
+- **Dashboard**: calories, remaining, protein, water (+250 ml), weight vs target, workout status, today's workout, suggested meal, and charts for calories, macros, weight and workout consistency.
+- **Progress**: log weight and body measurements; charts for weight (with regression trend forecast), calories vs goal, protein vs goal, workout consistency and water over 7 days / 30 days / 3 months / 6 months.
+- **Weekly insights**: Pandas analysis of the week, plain-language insights, practical suggestions, and a K-Means behaviour cluster.
+- **AI fitness assistant**: offline intent classifier (TF-IDF + logistic regression) that answers using the user's profile and today's log; refuses medical questions.
 
 ---
 
@@ -179,7 +179,7 @@ The tests use the separate `fitness_test` database (override with `TEST_DATABASE
 - JWT bearer tokens with expiry; every data route depends on `get_current_user`.
 - Users can only read or delete their own records (checked on every ID-based route).
 - Pydantic validation on every input (ranges, enums, email, password strength, no future dates).
-- SQLAlchemy ORM with bound parameters — no string-built SQL.
+- SQLAlchemy ORM with bound parameters, never string-built SQL.
 - CORS restricted to the origins in `CORS_ORIGINS`.
 - Secrets read from environment variables (`.env`, excluded from git).
 
@@ -190,7 +190,7 @@ The tests use the separate `fitness_test` database (override with `TEST_DATABASE
 | `Cannot reach the server` in the app | Check the backend is running on port 8000 and `VITE_API_URL` matches. |
 | `password authentication failed` | Check `DATABASE_URL` in `backend/.env` matches your PostgreSQL user. |
 | CORS error in the browser console | Add your frontend URL to `CORS_ORIGINS` in `backend/.env` and restart. |
-| Charts empty for a new user | Expected — log food, weight and workouts for a few days, or use the demo account. |
+| Charts empty for a new user | Expected. Log food, weight and workouts for a few days, or use the demo account. |
 
 ## Disclaimer
 

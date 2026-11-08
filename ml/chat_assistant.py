@@ -1,5 +1,5 @@
 """
-AI FITNESS ASSISTANT — intent classification (machine learning) +
+AI FITNESS ASSISTANT: intent classification (machine learning) +
                        data-driven response templates
 
 1. Safety rules run first: questions about diseases, medicines, injuries
@@ -150,7 +150,7 @@ class ChatAssistant:
 
     @staticmethod
     def _format_meal(m: dict) -> str:
-        return (f"**{m['name']}** — {m['calories']} kcal, {m['protein']} g protein, "
+        return (f"**{m['name']}**: {m['calories']} kcal, {m['protein']} g protein, "
                 f"{m['carbs']} g carbs, {m['fat']} g fat"
                 + (f" ({m['portion']}× portion)" if m["portion"] != 1 else ""))
 
@@ -185,7 +185,7 @@ class ChatAssistant:
         foods = ctx["foods_within"](budget)
         lines.append(f"With about {budget} kcal, protein-friendly choices are:")
         for f in foods[:4]:
-            lines.append(f"• {f['name']} ({f['serving']}) — {f['calories']} kcal, {f['protein']} g protein")
+            lines.append(f"• {f['name']} ({f['serving']}): {f['calories']} kcal, {f['protein']} g protein")
         return "\n".join(lines)
 
     def _handle_protein_query(self, text, ctx):
@@ -205,7 +205,7 @@ class ChatAssistant:
             return "Today is a rest day in your plan. A 20–30 minute walk or light stretching is a good choice."
         lines = [f"Today's session: **{w['title']}** (about {w['estimated_minutes']} min)."]
         for e in w["exercises"][:6]:
-            lines.append(f"• {e['name']} — {e['sets']} × {e['reps']}, rest {e['rest_seconds']} s")
+            lines.append(f"• {e['name']}: {e['sets']} × {e['reps']}, rest {e['rest_seconds']} s")
         lines.append("Warm up for 5 minutes first, and stop any exercise that causes pain.")
         return "\n".join(lines)
 

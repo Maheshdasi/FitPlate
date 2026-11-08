@@ -40,7 +40,7 @@ export const CATEGORY_LABELS = {
 }
 
 export const capitalize = (s) => (s ? s[0].toUpperCase() + s.slice(1) : '')
-export const round = (n, d = 0) => (n == null ? '—' : Number(n).toFixed(d).replace(/\.0+$/, ''))
+export const round = (n, d = 0) => (n == null ? '-' : Number(n).toFixed(d).replace(/\.0+$/, ''))
 export const kcal = (n) => `${Math.round(n ?? 0).toLocaleString('en-IN')}`
 
 export function shortDate(iso) {

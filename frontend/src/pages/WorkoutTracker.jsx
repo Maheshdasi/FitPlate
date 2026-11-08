@@ -65,7 +65,7 @@ export default function WorkoutTracker() {
               action={<span className="num text-sm text-muted">{completed} / {total} done</span>}>
               <ProgressBar value={completed} goal={total} height="h-2.5" />
               {completed === total && total > 0 && (
-                <p className="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-800">Session complete. Well done — remember to stretch and drink water.</p>
+                <p className="mt-3 rounded-lg bg-brand-50 px-3 py-2 text-sm font-semibold text-brand-800">Session complete. Well done. Remember to stretch and drink water.</p>
               )}
               <ErrorNote message={saveError} />
               <ul className="mt-4 divide-y divide-line">

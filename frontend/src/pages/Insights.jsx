@@ -47,7 +47,7 @@ export default function Insights() {
       {loading && !data ? <Spinner label="Analysing your week…" /> : error ? <ErrorNote message={error} onRetry={reload} /> : (
         <>
           <p className="mb-4 text-sm font-semibold text-muted">
-            {shortDate(data.week_start)} – {shortDate(data.week_end)}{!data.is_complete && ' (week in progress)'}
+            {shortDate(data.week_start)} to {shortDate(data.week_end)}{!data.is_complete && ' (week in progress)'}
           </p>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <Stat label="On calorie target" value={data.metrics.days_on_calorie_target} unit="/ 7 days" sub={`${data.metrics.days_logged} days logged`} />
@@ -55,7 +55,7 @@ export default function Insights() {
               sub={`Target met on ${data.metrics.protein_target_days} days`} />
             <Stat label="Workouts" value={data.metrics.workouts_completed} unit={`/ ${data.metrics.workouts_planned} planned`} />
             <Stat label="Weight change" tone="text-ink"
-              value={data.metrics.weight_change_kg == null ? '—' : `${data.metrics.weight_change_kg > 0 ? '+' : ''}${data.metrics.weight_change_kg}`}
+              value={data.metrics.weight_change_kg == null ? '-' : `${data.metrics.weight_change_kg > 0 ? '+' : ''}${data.metrics.weight_change_kg}`}
               unit="kg" sub="Weekly average vs previous week" />
           </div>
 

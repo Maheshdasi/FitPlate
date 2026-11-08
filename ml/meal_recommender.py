@@ -1,5 +1,5 @@
 """
-MEAL RECOMMENDATION — content-based recommender (machine learning)
+MEAL RECOMMENDATION: content-based recommender (machine learning)
 
 Pipeline
   1. Rule-based filter   : remove meals that clash with the user's diet
@@ -15,7 +15,7 @@ Pipeline
           the foods they log most often (implicit feedback)
   5. Score = cosine(nutrition) * 0.40 + calorie fit * 0.30
              + cosine(text) * 0.20 + protein density bonus * 0.10
-  6. Portion scaling     : servings are scaled (0.75x – 1.5x) so the
+  6. Portion scaling     : servings are scaled (0.75x to 1.5x) so the
                            meal lands close to the slot's calorie target.
 
 The result is a ranked list per meal slot, so "replace" simply returns the
