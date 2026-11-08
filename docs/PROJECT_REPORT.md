@@ -25,16 +25,16 @@ and clearly separating formulas, rules and ML.
 
 | # | Work | Relevance to this project |
 |---|---|---|
-| 1 | Mifflin, M. D., St Jeor, S. T. et al. (1990). *A new predictive equation for resting energy expenditure in healthy individuals.* American Journal of Clinical Nutrition, 51(2), 241–247. | BMR equation used by the calculator. |
+| 1 | Mifflin, M. D., St Jeor, S. T. et al. (1990). *A new predictive equation for resting energy expenditure in healthy individuals.* American Journal of Clinical Nutrition, 51(2), 241-247. | BMR equation used by the calculator. |
 | 2 | Harris, J. A. & Benedict, F. G. (1919). *A Biometric Study of Basal Metabolism in Man.* Carnegie Institution. | Earlier BMR equation; Mifflin-St Jeor was chosen as it is generally considered more accurate for modern populations. |
-| 3 | World Health Organization. *Body mass index (BMI) classification for adults.* | BMI categories (< 18.5, 18.5–24.9, 25–29.9, ≥ 30). |
+| 3 | World Health Organization. *Body mass index (BMI) classification for adults.* | BMI categories (< 18.5, 18.5 to 24.9, 25 to 29.9, ≥ 30). |
 | 4 | Longvah, T. et al. (2017). *Indian Food Composition Tables.* National Institute of Nutrition, Hyderabad. | Reference for nutrient values of Indian foods in the seed dataset (values in the app are rounded averages). |
 | 5 | Lops, P., de Gemmis, M. & Semeraro, G. (2011). *Content-based Recommender Systems: State of the Art and Trends.* In Recommender Systems Handbook, Springer. | Basis of the content-based meal recommender (item profiles, user profiles, similarity). |
 | 6 | Freyne, J. & Berkovsky, S. (2010). *Intelligent food planning: personalized recipe recommendation.* Proc. IUI 2010. | Recipe recommendation from ingredient-level preferences, similar to using ingredient TF-IDF. |
 | 7 | Trattner, C. & Elsweiler, D. (2017). *Investigating the healthiness of internet-sourced recipes.* Proc. WWW 2017. | Motivates ranking by nutritional fit, not only popularity. |
 | 8 | Carbonell, J. & Goldstein, J. (1998). *The use of MMR, diversity-based reranking for reordering documents and producing summaries.* Proc. SIGIR 1998. | Maximal Marginal Relevance used to diversify exercises within a session. |
 | 9 | MacQueen, J. (1967). *Some methods for classification and analysis of multivariate observations.* Proc. 5th Berkeley Symposium. | K-Means clustering used for behaviour patterns. |
-| 10 | Pedregosa, F. et al. (2011). *Scikit-learn: Machine Learning in Python.* JMLR 12, 2825–2830. | Library used for TF-IDF, cosine similarity, K-Means, linear and logistic regression. |
+| 10 | Pedregosa, F. et al. (2011). *Scikit-learn: Machine Learning in Python.* JMLR 12, 2825-2830. | Library used for TF-IDF, cosine similarity, K-Means, linear and logistic regression. |
 
 **Summary.** Energy-requirement equations are well established and explainable, so they are better
 implemented as formulas than learned. Recommendation research shows content-based methods work well when
@@ -210,7 +210,7 @@ function recommend(user, slot, date):
     for m in candidates:
         m.portion ← clip(round_quarter(target.kcal / m.kcal), 0.75, 1.5)
         m.score   ← 0.40·cos(energy_split(m), energy_split(target))
-                  + 0.30·exp(−3·|m.kcal·portion − target.kcal| / target.kcal)
+                  + 0.30·exp(-3·|m.kcal·portion - target.kcal| / target.kcal)
                   + 0.20·cos(tfidf(m.text), tfidf(user.preferences + frequent_foods))
                   + 0.10·protein_density(m)
     return candidates sorted by score (descending)
@@ -241,7 +241,7 @@ function recommend(user, slot, date):
 | Area | Test | Expected | Result |
 |---|---|---|---|
 | Formula | BMR equals Mifflin-St Jeor for male and female inputs | exact value | Pass |
-| Formula | TDEE, −20% goal adjustment, 1.8 g/kg protein, 1200 kcal floor | exact values | Pass |
+| Formula | TDEE, -20% goal adjustment, 1.8 g/kg protein, 1200 kcal floor | exact values | Pass |
 | Auth | Weak password rejected | 422 with message | Pass |
 | Auth | Duplicate email (case-insensitive) | 409 | Pass |
 | Auth | Correct / wrong password | 200 / 401 | Pass |
@@ -250,7 +250,7 @@ function recommend(user, slot, date):
 | Profile | Features blocked before profile; GET before setup | 409 / 404 | Pass |
 | Validation | Weight-loss target above current weight; age 8 | 422 with field name | Pass |
 | Calculator | Message, disclaimer and ≥ 7 explanation steps | present | Pass |
-| Food log | Totals = quantity × nutrients; remaining = goal − consumed; delete | correct, 204 | Pass |
+| Food log | Totals = quantity × nutrients; remaining = goal - consumed; delete | correct, 204 | Pass |
 | Validation | Quantity 0 | 422 | Pass |
 | Security | Delete another user's log | 404 | Pass |
 | Security | SQL-injection string in search | 200, empty, table intact | Pass |
@@ -306,7 +306,7 @@ dashboard → mobile menu. **No JavaScript errors.** All 14 pages were also revi
   "You stayed close to your calorie target on 7 out of 7 days.",
   "Your average protein intake was 104 g, below your target of 140 g.",
   "You completed 4 workouts this week (plan: 4)." It then suggests adding a protein-rich afternoon snack.
-- The regression trend for the demo user shows about −0.24 kg/week with an estimated target date, labelled as a trend rather than a promise.
+- The regression trend for the demo user shows about -0.24 kg/week with an estimated target date, labelled as a trend rather than a promise.
 - Responsive layout tested at mobile and desktop widths.
 
 **Screenshots to include in the final report** (take them from the running app with the demo account):

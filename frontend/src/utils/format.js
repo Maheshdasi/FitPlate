@@ -19,9 +19,9 @@ export const ACTIVITY = {
 }
 export const ACTIVITY_HINT = {
   sedentary: 'Desk job, little or no exercise',
-  lightly_active: 'Exercise 1–3 days a week',
-  moderately_active: 'Exercise 3–5 days a week',
-  very_active: 'Hard exercise 6–7 days a week',
+  lightly_active: 'Exercise 1 to 3 days a week',
+  moderately_active: 'Exercise 3 to 5 days a week',
+  very_active: 'Hard exercise 6 to 7 days a week',
 }
 export const LEVELS = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' }
 export const WORKOUT_TYPES = {

@@ -109,7 +109,7 @@ export default function CalculatorPage() {
             ))}
           </ol>
           <p className="mt-4 text-xs text-muted">BMR uses the Mifflin-St Jeor equation (1990). Activity factors: 1.2, 1.375, 1.55 and 1.725.
-            Goal adjustment: −20% for weight loss, +15% for weight gain, +10% for muscle gain.</p>
+            Goal adjustment: -20% for weight loss, +15% for weight gain, +10% for muscle gain.</p>
         </Panel>
       </div>
 

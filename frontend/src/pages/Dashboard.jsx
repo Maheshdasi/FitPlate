@@ -177,7 +177,7 @@ export default function Dashboard() {
         {/* Today's workout */}
         <Panel title="Today's workout" action={<span className={`chip ${statusClass}`}>{statusLabel}</span>}>
           {w.is_rest_day ? (
-            <p className="text-sm text-muted">No session planned today. A 20–30 minute walk or light stretching helps recovery.</p>
+            <p className="text-sm text-muted">No session planned today. A 20 to 30 minute walk or light stretching helps recovery.</p>
           ) : (
             <>
               <p className="font-bold">{w.session.title}</p>
@@ -205,7 +205,7 @@ export default function Dashboard() {
                 <div className="mt-1 flex justify-center">
                   {d.workout_done ? <CheckCircle2 className="text-brand-600" size={24} aria-label="Workout done" />
                     : d.workout_planned ? <Circle className={d.date < today ? 'text-red-300' : 'text-line'} size={24} aria-label="Planned" />
-                      : <span className="flex h-6 w-6 items-center justify-center text-xs text-muted" aria-label="Rest day">–</span>}
+                      : <span className="flex h-6 w-6 items-center justify-center text-xs text-muted" aria-label="Rest day">-</span>}
                 </div>
               </div>
             ))}

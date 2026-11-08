@@ -26,19 +26,19 @@ The UI labels each one too (for example the "Formula-based" chip on the calculat
 
 ```
 BMI      = weight_kg / height_m²
-BMR      = 10·weight + 6.25·height_cm − 5·age + s     s = +5 (male), −161 (female), −78 (other)
+BMR      = 10·weight + 6.25·height_cm - 5·age + s     s = +5 (male), -161 (female), -78 (other)
 TDEE     = BMR × activity factor                      1.2 / 1.375 / 1.55 / 1.725
-Calories = TDEE × (1 + goal adjustment)               −20% loss, +15% gain, +10% muscle, 0 otherwise
+Calories = TDEE × (1 + goal adjustment)               -20% loss, +15% gain, +10% muscle, 0 otherwise
            (never below 1500 male / 1200 female / 1350 other)
 Protein  = weight × g/kg                              1.8 loss, 1.6 gain, 2.0 muscle, 1.4 otherwise
 Fat      = 25% of calories ÷ 9
-Carbs    = (calories − protein·4 − fat·9) ÷ 4
+Carbs    = (calories - protein·4 - fat·9) ÷ 4
 Water    = 35 ml × weight, rounded to 250 ml
 ```
 
 Worked example (demo user: male, 24 y, 175 cm, 78 kg, moderately active, weight loss):
-BMR = 780 + 1093.75 − 120 + 5 = 1759 kcal · TDEE = 1759 × 1.55 = 2726 · Calories = 2726 × 0.8 = 2181 kcal ·
-Protein = 1.8 × 78 = 140 g · Fat = 545 ÷ 9 = 61 g · Carbs = (2181 − 560 − 545) ÷ 4 = 269 g.
+BMR = 780 + 1093.75 - 120 + 5 = 1759 kcal · TDEE = 1759 × 1.55 = 2726 · Calories = 2726 × 0.8 = 2181 kcal ·
+Protein = 1.8 × 78 = 140 g · Fat = 545 ÷ 9 = 61 g · Carbs = (2181 - 560 - 545) ÷ 4 = 269 g.
 
 ## 2. Meal recommendation (content-based filtering)
 
@@ -51,7 +51,7 @@ Protein = 1.8 × 78 = 140 g · Fat = 545 ÷ 9 = 61 g · Carbs = (2181 − 560 �
 
 ```
 macro_sim   = cosine([4P, 4C, 9F]_m , [4P, 4C, 9F]_target)        energy split similarity
-calorie_fit = exp(−3 · |kcal_m − kcal_target| / kcal_target)
+calorie_fit = exp(-3 · |kcal_m - kcal_target| / kcal_target)
 text_sim    = cosine(TFIDF(name + ingredients + tags)_m , TFIDF(user profile text))
 protein     = clip((protein / kcal × 100) / 10, 0, 1)              halved for weight-gain goal
 
@@ -86,7 +86,7 @@ The user is encoded in the same space (level preference weights, equipment weigh
 cardio and compound preference, goal-tag weights). Exercises are ranked by cosine similarity.
 
 **MMR** picks each next exercise with
-`0.7·(similarity − 0.15·times_used_this_week) − 0.3·(1 if same target muscle as an already chosen exercise)`,
+`0.7·(similarity - 0.15·times_used_this_week) - 0.3·(1 if same target muscle as an already chosen exercise)`,
 so sessions are relevant, varied within a day, and rotate across days.
 
 ## 4. Weight trend: linear regression
@@ -97,7 +97,7 @@ and the date the target would be reached if the trend continues and is moving to
 
 ## 5. Behaviour clustering: K-Means
 
-Each user-week is a vector `[calorie adherence, protein ratio, workout ratio, logging ratio]` (0–1).
+Each user-week is a vector `[calorie adherence, protein ratio, workout ratio, logging ratio]` (0 to 1).
 Because a project has few real users, the model is trained on a documented synthetic population
 (4 archetypes × 120 points, Gaussian noise σ = 0.10, seed 42) plus any real weeks passed in.
 Features are standardised; K-Means with k = 4, n_init = 10. Clusters are **named from their centroids**
@@ -123,7 +123,7 @@ No rule makes medical claims.
 
 1. **Safety rule first**: a regular expression for conditions, medicines, injuries, symptoms, pregnancy, etc.
    returns a fixed "please consult a doctor or dietitian" reply.
-2. **Intent classification**: character 2–4-gram TF-IDF + logistic regression (C = 8) trained on 75 labelled
+2. **Intent classification**: character n-gram (2 to 4 letters) TF-IDF + logistic regression (C = 8) trained on 75 labelled
    example questions across 8 intents. Character n-grams tolerate typos. Below 25% confidence the assistant asks
    the user to rephrase.
 3. **Entity extraction**: meal slot (or time of day), calorie numbers ("500 calories"), diet override

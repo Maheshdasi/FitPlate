@@ -40,7 +40,7 @@ Error body:
 { "email": "priya@example.com", "password": "Fitness2026" }
 ```
 
-Password: 8–72 characters with at least one letter and one number.
+Password: 8 to 72 characters with at least one letter and one number.
 
 Response (also returned by login):
 
@@ -85,10 +85,10 @@ Same body as register. `401` on wrong email or password.
 | dietary_preference | `vegetarian`, `non_vegetarian`, `vegan`, `eggetarian` |
 | allergies | `dairy`, `eggs`, `gluten`, `nuts`, `peanuts`, `soy`, `fish`, `shellfish`, `sesame` |
 | workout_level | `beginner`, `intermediate`, `advanced` |
-| workout_days_per_week | 2–6 |
+| workout_days_per_week | 2 to 6 |
 | preferred_workout_type | `gym`, `home`, `bodyweight`, `mixed`, `cardio` |
 
-Ranges: age 13–100, height 100–250 cm, weights 30–300 kg. Target weight must match the goal
+Ranges: age 13 to 100, height 100 to 250 cm, weights 30 to 300 kg. Target weight must match the goal
 (at or below current weight for weight loss; not below current for gain). Saving also logs the weight
 and rebuilds the workout plan if goal, level, days or type changed.
 
@@ -228,7 +228,7 @@ Everything the dashboard shows in one call.
 
 ### `GET /insights/weekly?week_start=&current=false&date=`
 
-Default: the last completed Monday–Sunday week. `current=true`: this week so far.
+Default: the last completed Monday to Sunday week. `current=true`: this week so far.
 
 ```json
 { "week_start": "2026-10-12", "week_end": "2026-10-18", "is_complete": true,

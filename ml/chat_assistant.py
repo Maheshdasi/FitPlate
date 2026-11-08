@@ -202,7 +202,7 @@ class ChatAssistant:
     def _handle_workout_today(self, text, ctx):
         w = ctx.get("today_workout")
         if not w:
-            return "Today is a rest day in your plan. A 20–30 minute walk or light stretching is a good choice."
+            return "Today is a rest day in your plan. A 20 to 30 minute walk or light stretching is a good choice."
         lines = [f"Today's session: **{w['title']}** (about {w['estimated_minutes']} min)."]
         for e in w["exercises"][:6]:
             lines.append(f"• {e['name']}: {e['sets']} × {e['reps']}, rest {e['rest_seconds']} s")
