@@ -184,6 +184,37 @@ FitPlate/
 └── docs/          Project report, API reference, algorithm details and screenshots
 ```
 
+## Try it yourself
+
+There are three ways to run FitPlate. The first two need only a browser and a GitHub account.
+
+**1. Deploy it online (live link)**
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Maheshdasi/FitPlate)
+
+1. Click the button above and sign in to Render with GitHub (the free plan is enough).
+2. Click **Deploy Blueprint**. Render reads [`render.yaml`](render.yaml) and creates the website, the API and a PostgreSQL database.
+3. After about 5 to 10 minutes the service shows **Live**. Open its `onrender.com` link.
+
+On the free plan the site sleeps after 15 minutes without visitors and takes about a minute to wake up.
+
+**2. Run it in GitHub Codespaces (in the browser)**
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1)
+
+1. Click the button above, then **Create codespace**.
+2. Wait about 3 to 5 minutes while it installs everything and loads the demo data.
+3. The website opens in a new tab. If it doesn't, open the **PORTS** tab and click the globe icon next to port **5173**.
+
+**3. Run it on your own computer**
+
+Install Python 3.12 or 3.13, Node.js and PostgreSQL. On Windows, double-click `setup-windows.bat` once and then
+`start-windows.bat`. On macOS or Linux, follow the manual steps in [docs/SETUP.md](docs/SETUP.md).
+
+**Log in** with the demo account **`demo@fitness.app`** / **`Demo@1234`**, which has four months of sample history,
+or click "Get started" to create a new account. The API documentation is at `/api/docs` on the live site,
+or `/docs` on port 8000 in Codespaces and locally.
+
 ## Documentation
 
 - [Project report](docs/PROJECT_REPORT.md): problem statement, literature survey, objectives, design, methodology, testing and results
