@@ -1,7 +1,9 @@
 @echo off
+rem The project folder is two levels above this script (scripts\windows)
+for %%I in ("%~dp0..\..") do set "ROOT=%%~fI\"
 setlocal EnableExtensions
 title FitPlate - one-time setup
-cd /d "%~dp0"
+cd /d "%ROOT%"
 
 echo ============================================================
 echo   FitPlate (AI Fitness ^& Nutrition Platform) - one-time setup
@@ -71,7 +73,7 @@ echo.
 
 rem ---------- 5. Backend ----------
 echo Setting up the backend (this can take a few minutes the first time)...
-cd /d "%~dp0backend"
+cd /d "%ROOT%backend"
 if exist venv (
   venv\Scripts\python.exe -c "import sys, sysconfig; sys.exit(1 if sysconfig.get_config_var('Py_GIL_DISABLED') or sys.version_info[:2] not in [(3, 12), (3, 13)] else 0)" >nul 2>nul
   if errorlevel 1 (
@@ -101,7 +103,7 @@ echo.
 
 rem ---------- 6. Frontend ----------
 echo Setting up the frontend...
-cd /d "%~dp0frontend"
+cd /d "%ROOT%frontend"
 if not exist .env copy .env.example .env >nul
 call npm install
 if errorlevel 1 (
@@ -111,7 +113,7 @@ if errorlevel 1 (
 
 echo.
 echo ============================================================
-echo   Setup complete. Double-click start-windows.bat to run the app.
+echo   Setup complete. Double-click scripts\windows\start.bat to run the app.
 echo   Demo login:  demo@fitness.app  /  Demo@1234
 echo ============================================================
 pause
@@ -119,6 +121,6 @@ exit /b 0
 
 :fail
 echo.
-echo Setup stopped. Read the message above, fix it, then run setup-windows.bat again.
+echo Setup stopped. Read the message above, fix it, then run scripts\windows\setup.bat again.
 pause
 exit /b 1

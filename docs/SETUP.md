@@ -22,17 +22,17 @@ The whole app (website, API and PostgreSQL database) runs inside GitHub Codespac
 3. The website opens in a new browser tab. If it doesn't, open the **PORTS** tab at the bottom and click the globe icon next to port **5173**.
 4. Log in with the demo account: **`demo@fitness.app`** / **`Demo@1234`** (4 months of sample history), or click "Get started" to create your own account.
 
-The API documentation (Swagger) is on port **8000** at `/docs`. Every push also runs the 26 automated tests on GitHub Actions; see the **Tests** badge in the README.
+The API documentation (Swagger) is on port **8000** at `/docs`. Every push also runs the 57 automated tests on GitHub Actions; see the **Tests** badge in the README.
 
 ## On Windows (easiest)
 
 1. Install **Python 3.12** (tick "Add python.exe to PATH"), **Node.js LTS**, and **PostgreSQL** (remember the `postgres` password).
-2. Double-click **`setup-windows.bat`** once and type your `postgres` password when asked.
-3. Double-click **`start-windows.bat`** whenever you want to run the app. It opens http://localhost:5173.
+2. Double-click **`scripts\windows\setup.bat`** once and type your `postgres` password when asked.
+3. Double-click **`scripts\windows\start.bat`** whenever you want to run the app. It opens http://localhost:5173.
 4. Log in with `demo@fitness.app` / `Demo@1234`.
 
-Other scripts: **`refresh-demo-data-windows.bat`** (run on the morning of a demo so the sample history ends today)
-and **`run-tests-windows.bat`** (runs the 26 automated tests).
+Other scripts: **`scripts\windows\refresh-demo-data.bat`** (run on the morning of a demo so the sample history ends today)
+and **`scripts\windows\run-tests.bat`** (runs the 57 automated tests).
 
 The manual steps below do the same thing by hand, and work on macOS and Linux too.
 

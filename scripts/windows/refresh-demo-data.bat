@@ -1,6 +1,8 @@
 @echo off
+rem The project folder is two levels above this script (scripts\windows)
+for %%I in ("%~dp0..\..") do set "ROOT=%%~fI\"
 title FitPlate - refresh demo data
-cd /d "%~dp0backend"
+cd /d "%ROOT%backend"
 echo This regenerates the demo account's 4 months of history so it ends TODAY.
 echo Run it on the morning of your project review.
 echo (Accounts you created yourself are not touched.)
