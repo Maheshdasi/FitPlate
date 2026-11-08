@@ -1,229 +1,279 @@
-# FitPlate: AI Fitness & Nutrition Platform
+<p align="center">
+  <img src="docs/assets/banner.svg" alt="FitPlate: AI Fitness &amp; Nutrition Platform" width="100%">
+</p>
 
-[![Tests](https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg)](https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml)
+<p align="center">
+  <a href="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml"><img src="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <img src="https://img.shields.io/badge/tests-57%20passing-2F7A55" alt="57 tests passing">
+  <img src="https://img.shields.io/badge/coverage-94%25-2F7A55" alt="94% coverage">
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&amp;logoColor=black" alt="React 18">
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&amp;logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/scikit--learn-F7931E?logo=scikitlearn&amp;logoColor=white" alt="scikit-learn">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-lightgrey" alt="MIT license"></a>
+</p>
 
-FitPlate is a full-stack web application that brings fitness, nutrition, workouts and progress tracking into one place.
+<p align="center">
+  <a href="#try-it-yourself"><b>Try it</b></a> |
+  <a href="#how-it-works"><b>How it works</b></a> |
+  <a href="#results"><b>Results</b></a> |
+  <a href="docs/ARCHITECTURE.md"><b>Architecture</b></a> |
+  <a href="docs/PROJECT_REPORT.md"><b>Project report</b></a>
+</p>
+
+**FitPlate** is a full-stack web application that brings fitness, nutrition, workouts and progress tracking into one place.
 It turns a user's profile into daily calorie and protein targets, suggests meals and workouts that fit those targets,
 tracks what they eat and how they train, and explains each week back to them in plain language.
 
-Most fitness apps either give numbers without explaining them or label everything as "AI". FitPlate clearly separates
-**formula-based calculations**, **rule-based decisions** and **machine-learning recommendations**, and shows the user
-which is which. It also covers everyday Indian meals such as dal, roti, idli, paneer and curd.
+Unlike most fitness apps, FitPlate **shows where every number comes from**. Calorie targets use published formulas,
+safety decisions use clear rules, and recommendations use machine learning, and the app labels which is which.
+It is built around **everyday Indian meals** such as dal, roti, idli, paneer and curd.
 
-Built as a final-year B.Tech capstone project.
+<p align="center">
+  <img src="docs/assets/demo.gif" alt="FitPlate demo: login, dashboard, calculator, food logging, meal plan, workouts, progress, insights and assistant" width="100%">
+</p>
 
-![FitPlate dashboard](docs/screenshots/dashboard.png)
+## Highlights
 
----
+| | |
+|---|---|
+| **Explainable targets** | BMI, BMR, TDEE, calories and macros from the Mifflin-St Jeor equation, with every step shown to the user |
+| **Safe recommendations** | Diet type and allergies are enforced by rules before any ML ranking: **0 violations in 384 tested scenarios** |
+| **Five ML techniques** | Content-based filtering, similarity ranking with MMR, linear regression, K-Means clustering and a text classifier |
+| **Weekly review in plain words** | "You stayed close to your calorie target on 5 out of 7 days", followed by practical suggestions |
+| **Offline AI assistant** | Answers from the user's own data, tolerates typos, and declines medical questions |
+| **Tested and secure** | 57 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
+
+## Contents
+
+- [The problem](#the-problem)
+- [What FitPlate does](#what-fitplate-does)
+- [Screenshots](#screenshots)
+- [How it works](#how-it-works)
+- [Results](#results)
+- [Data, security and quality](#data-security-and-quality)
+- [Technology and project structure](#technology-and-project-structure)
+- [Try it yourself](#try-it-yourself)
+- [Documentation](#documentation)
 
 ## The problem
 
 People who want to lose weight, build muscle or simply stay fit usually juggle several separate tools: a calorie calculator,
-a food-logging app, a workout app and a notebook for their weight. These tools don't share data, so the user has to work out
-for themselves what to eat next, whether today's workout fits their goal, and whether their habits are working.
-Popular food databases also focus on packaged Western foods, and many "smart" apps never explain where their numbers come from.
+a food-logging app, a workout app and a notebook for their weight. These tools don't share data, so the user has to work
+out for themselves what to eat next, whether today's workout fits their goal, and whether their habits are working.
+Popular food databases focus on packaged Western foods, and many "smart" apps never explain where their numbers come from.
 
 ## What FitPlate does
 
-A user's journey through the app:
+```mermaid
+flowchart LR
+    A[Create account] --> B[5-step profile] --> C[Daily targets]
+    C --> D[Log food] --> E[Meal suggestions]
+    C --> F[Weekly workout plan] --> G[Tick off exercises]
+    D --> H[Progress charts]
+    G --> H
+    H --> I[Weekly insights]
+    D -.-> J[Ask the assistant]
+    F -.-> J
+```
 
-1. **Create an account and a profile**: age, gender, height, weight, target weight, activity level, fitness goal, diet type
-   (vegetarian, non-vegetarian, vegan, eggetarian), food allergies, workout level, available workout days and where they train.
-2. **Get their daily targets**: BMI, BMR, TDEE, daily calories, protein, carbohydrates, fat and water, with every step of
-   the calculation shown.
-3. **Log food**: search 79 foods, choose servings and meal type, and see daily totals, what's left and progress bars update instantly.
-4. **Get meal suggestions** for breakfast, lunch, dinner and snacks that respect their diet and allergies and fit the calories
-   and protein still left today. Each meal has ingredients, macros, preparation steps and the reasons it was chosen.
-5. **Follow a weekly workout plan** built for their goal, level, equipment and free days, and tick off exercises as they go.
-6. **Track progress**: weight, body measurements, calories, protein, water and workout consistency over 7 days to 6 months,
-   with a trend line that predicts where their weight is heading.
-7. **Read a weekly review** in plain sentences, such as "You stayed close to your calorie target on 5 out of 7 days",
-   followed by practical suggestions.
-8. **Ask the fitness assistant** questions like "What should I eat for dinner?" or "I have 500 calories left, what can I eat?",
-   answered from their own profile and today's food log.
+1. **Profile**: age, gender, height, weight, target weight, activity level, goal, diet type (vegetarian, non-vegetarian,
+   vegan, eggetarian), allergies, workout level, free days per week and where they train.
+2. **Daily targets**: BMI, BMR, TDEE, calories, protein, carbohydrates, fat and water, each step explained.
+3. **Food tracker**: search 79 foods, choose servings and meal type; totals, remaining amounts and charts update instantly.
+4. **Meal suggestions** for breakfast, lunch, dinner and snacks, sized to what is left today, with ingredients,
+   preparation steps, a match score and the reasons each meal was chosen.
+5. **Workout plan** matched to the goal, level, equipment and free days, with sets, reps, rest and difficulty.
+   Exercises are ticked off in the workout tracker.
+6. **Progress** over 7 days, 30 days, 3 months or 6 months: weight with a forecast trend line, body measurements,
+   calories and protein against goals, water and workout consistency.
+7. **Weekly insights** in plain sentences, practical suggestions and a habit pattern for the week.
+8. **Fitness assistant** for questions such as "What should I eat for dinner?" or "I have 500 calories left, what can I eat?"
 
 ## Screenshots
 
 | | |
 |---|---|
-| ![Landing page](docs/screenshots/landing.png) | ![Calorie calculator](docs/screenshots/calculator.png) |
-| Landing page | Calorie and macro calculator, with every step shown |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Calorie calculator](docs/screenshots/calculator.png) |
+| **Dashboard**: today's calories, macros, water, weight and charts | **Calculator**: targets with every step shown |
 | ![Food tracker](docs/screenshots/food-tracker.png) | ![Meal plan](docs/screenshots/meal-plan.png) |
-| Food tracker with daily totals | Meal recommendations with match score and reasons |
+| **Food tracker**: search, log and daily totals | **Meal plan**: ranked meals with reasons |
 | ![Workout plan](docs/screenshots/workout-plan.png) | ![Progress](docs/screenshots/progress.png) |
-| Weekly workout plan | Progress charts with a weight trend forecast |
+| **Workout plan**: weekly schedule and exercises | **Progress**: trends and a weight forecast |
 | ![Weekly insights](docs/screenshots/weekly-insights.png) | ![Fitness assistant](docs/screenshots/assistant.png) |
-| Weekly insights and habit pattern | Fitness assistant using the user's own data |
+| **Weekly insights**: review, suggestions, habit pattern | **Assistant**: answers from the user's own data |
 
-<p align="center"><img src="docs/screenshots/mobile-dashboard.png" alt="Dashboard on a phone" width="300"><br>The layout adapts to phones and tablets</p>
-
----
+<p align="center"><img src="docs/screenshots/landing.png" alt="Landing page" width="66%">&nbsp;&nbsp;<img src="docs/screenshots/mobile-dashboard.png" alt="Dashboard on a phone" width="22%"><br><sub>Landing page, and the same dashboard on a phone</sub></p>
 
 ## How it works
 
-### Architecture
-
+```mermaid
+flowchart LR
+    U([Browser]) --> FE[React website<br/>Vite, Tailwind, Recharts]
+    FE -->|REST API, JSON + JWT| BE[FastAPI backend<br/>validation, auth, logic]
+    BE -->|SQLAlchemy ORM| DB[(PostgreSQL<br/>12 tables)]
+    BE -->|Python calls| ML
+    subgraph ML [ML layer]
+        direction TB
+        F[Formulas] ~~~ R[Rules] ~~~ M[Models]
+    end
 ```
-React website  ──HTTP / JSON──▶  FastAPI backend  ──SQLAlchemy ORM──▶  PostgreSQL
-                                       │
-                                       ▼
-                               ML / AI layer (/ml)
-```
 
-- The **React website** shows the pages, charts and forms, and talks to the backend through a REST API.
-- The **FastAPI backend** checks who the user is (JWT login), validates every input, reads and writes the database,
-  and calls the ML layer.
-- The **ML layer** is plain Python (scikit-learn, Pandas, NumPy) with no web code, so each model can be tested on its own.
-- **PostgreSQL** stores users, profiles, foods, meals, exercises and every log, in 12 related tables.
+The React website talks to a FastAPI backend through a REST API. The backend validates every input, checks the login
+token, stores data in PostgreSQL and calls the ML layer, which is plain Python with no web code so each part can be
+tested on its own. More diagrams, including the database design and a step-by-step recommendation flow, are in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ### Formulas, rules and machine learning
 
 | Part of the app | Type | Technique |
 |---|---|---|
-| BMI, BMR, TDEE, calories, protein, carbs, fat, water | Formula | WHO BMI, Mifflin-St Jeor equation, activity factors, goal adjustment |
+| BMI, BMR, TDEE, calories, protein, carbs, fat, water | Formula | WHO BMI, Mifflin-St Jeor, activity factors, goal adjustment |
 | Removing meals that break the diet type or contain allergens | Rule | Hard safety filter, applied before any ML |
-| Weekly workout split; sets, reps and rest | Rule | Common strength-training guidelines by goal and level |
-| Ranking meals | Machine learning | Content-based filtering: TF-IDF and cosine similarity |
-| Choosing exercises | Machine learning | Cosine similarity with Maximal Marginal Relevance (MMR) |
-| Weight trend and target date | Machine learning | Linear regression |
-| Habit pattern in the weekly review | Machine learning | K-Means clustering |
-| Weekly statistics and suggestions | Analysis and rules | Pandas aggregation with threshold rules |
-| Understanding assistant questions | Machine learning | TF-IDF (character n-grams) and logistic regression |
+| Weekly workout split; sets, reps and rest | Rule | Strength-training guidelines by goal and level |
+| Ranking meals | ML | Content-based filtering with TF-IDF and cosine similarity |
+| Choosing exercises | ML | Cosine similarity with Maximal Marginal Relevance (MMR) |
+| Weight trend and target date | ML | Linear regression |
+| Habit pattern in the weekly review | ML | K-Means clustering |
+| Weekly statistics and suggestions | Analysis + rules | Pandas aggregation with threshold rules |
+| Understanding assistant questions | ML | Character n-gram TF-IDF with logistic regression |
 
-### Calorie and macro targets (formula-based)
+<details>
+<summary><b>Calorie and macro targets</b> (formula-based)</summary>
 
 ```
 BMI      = weight (kg) / height (m)²
-BMR      = 10 × weight + 6.25 × height (cm) - 5 × age + 5   (men; -161 for women)
+BMR      = 10 × weight + 6.25 × height (cm) - 5 × age + 5     (men; -161 for women)
 TDEE     = BMR × activity factor (1.2 to 1.725)
 Calories = TDEE adjusted for the goal (-20% weight loss, +15% weight gain, +10% muscle gain)
 Protein  = 1.4 to 2.0 g per kg of body weight, depending on the goal
-Fat      = 25% of calories;  Carbohydrates = the remaining calories
+Fat      = 25% of calories, and carbohydrates fill the remaining calories
 ```
 
-The calculator page shows every one of these steps with the user's own numbers and a medical disclaimer.
+The calculator page shows each of these steps with the user's own numbers and a medical disclaimer.
+</details>
 
-### Meal recommendations (content-based filtering)
+<details>
+<summary><b>Meal recommendations</b> (content-based filtering)</summary>
 
 1. **Filter**: meals outside the user's diet type or containing their allergens are removed.
-2. **Target**: the calories and protein left today are shared out across the meals not yet eaten.
-3. **Score** each remaining meal on four things: how closely its protein/carbs/fat split matches the target (cosine similarity),
-   how close its calories are to the target, how similar its ingredients are to foods the user likes and logs often
-   (TF-IDF), and its protein per calorie.
+2. **Target**: the calories and protein left today are shared across the meals not yet eaten.
+3. **Score** each meal: how closely its protein, carbs and fat split matches the target (cosine similarity), how close
+   its calories are, how similar its ingredients are to foods the user likes and logs often (TF-IDF), and protein per calorie.
 4. **Portion**: the serving is scaled between 0.75× and 1.5× to land near the target.
 
-"Show another" gives the next-best meal that hasn't been shown yet. The more a user logs, the more personal the suggestions become.
+"Show another" returns the next-best meal not yet shown. The more a user logs, the more personal the suggestions become.
+</details>
 
-### Workout recommendations (rules + similarity)
+<details>
+<summary><b>Workout recommendations</b> (rules + similarity)</summary>
 
-The number of free days decides the weekly split (for example, 4 days gives upper body and lower body sessions twice),
-and the goal and level decide sets, reps and rest. Every exercise is described as a set of features (difficulty, equipment,
-strength or cardio, compound movement, goals it suits). The user is described the same way, and exercises are ranked by
-cosine similarity. Maximal Marginal Relevance then picks a varied session, so the same muscle isn't trained twice in a row.
+The number of free days sets the weekly split (for example, 4 days gives upper and lower body sessions twice), and the
+goal and level set sets, reps and rest. Each exercise is described by its features (difficulty, equipment, strength or
+cardio, compound movement, goals it suits); the user is described the same way, and exercises are ranked by cosine
+similarity. Maximal Marginal Relevance then picks a varied session so the same muscle isn't trained twice in a row.
+</details>
 
-### Progress, weekly insights and the assistant
+<details>
+<summary><b>Progress, weekly insights and the assistant</b></summary>
 
-- **Weight trend**: linear regression on recent weight entries gives the weekly change, a 4-week forecast and an estimated
-  date to reach the target weight.
-- **Weekly insights**: Pandas summarises the week (days on calorie target, average protein, workouts, water, weight change),
-  rules turn it into plain sentences and suggestions, and K-Means places the week into a habit pattern such as
-  "Consistent achiever" or "Getting started".
-- **Fitness assistant**: a safety rule first declines questions about medical conditions, medicines or injuries.
-  A classifier then works out what the user is asking (meal idea, calories left, protein, workout, progress, water),
-  and the answer is built from their own targets, today's log, the meal recommender and their workout plan.
-  It runs fully offline with no paid API.
+- **Weight trend**: linear regression on recent weight entries gives the weekly change, a 4-week forecast and an
+  estimated date to reach the target weight.
+- **Weekly insights**: Pandas summarises the week, rules turn it into sentences and suggestions, and K-Means places the
+  week into a habit pattern such as "Consistent achiever" or "Getting started".
+- **Assistant**: a safety rule first declines questions about medical conditions, medicines or injuries. A classifier then
+  works out what is being asked, and the answer is built from the user's targets, today's log, the meal recommender and
+  their workout plan. It runs fully offline with no paid API.
+</details>
 
-Full details: [docs/ML_AND_ALGORITHMS.md](docs/ML_AND_ALGORITHMS.md)
+Full details of every formula, rule and model: [docs/ML_AND_ALGORITHMS.md](docs/ML_AND_ALGORITHMS.md)
 
----
+## Results
 
-## Data
+| Component | Evaluation | Result |
+|---|---|---|
+| Meal recommender safety | 384 scenarios (4 diets × 6 allergy sets × 4 goals × 4 meals) | **0** diet or allergy violations |
+| Meal recommender fit | Gap between the top meal and the meal's calorie target | median **3.1%**, **98%** within 15% |
+| Assistant intent classifier | 5-fold cross-validation, 75 examples, 8 intents | **80%** accuracy |
+| Assistant intent classifier | 8 misspelt questions it has never seen ("what shud i eat for dinr") | **8 / 8** correct |
+| Behaviour clustering | Silhouette score, K-Means with 4 clusters | **0.55** |
+| Calorie targets | Compared with hand calculations | exact match |
 
-- **79 foods**, mostly Indian staples (rice, roti, dal, idli, paneer, curd, chicken, eggs, fruits, nuts and more),
-  with calories, protein, carbs, fat, fibre, diet type and allergens per serving.
-- **49 meals** with ingredients, preparation steps and macros, across breakfast, lunch, dinner and snacks.
-- **72 exercises** across chest, back, shoulders, arms, legs, core, full body and cardio, with target muscle,
-  equipment and difficulty.
-- **A demo account** with four months of food, water, weight, measurement and workout history, so every chart
-  and insight has data from the first login (`demo@fitness.app` / `Demo@1234`).
+Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed automatically on every update.
 
-## Security
+## Data, security and quality
 
-- Passwords are hashed with bcrypt and never stored as plain text.
-- Login uses JWT tokens that expire; every page of user data requires a valid token.
-- Users can only see and change their own records.
-- Every input is validated (ranges, allowed values, email format, password strength, no future dates).
-- All database access goes through the SQLAlchemy ORM, which prevents SQL injection.
-- Secrets are kept in environment variables, never in the code.
+**Data**
+- **79 foods**, mostly Indian staples, with calories, protein, carbs, fat, fibre, diet type and allergens per serving.
+- **49 meals** with ingredients, preparation steps and macros, and **72 exercises** across 8 muscle groups.
+- **A demo account** with four months of food, water, weight, measurement and workout history, so every chart has data
+  from the first login.
 
-## Testing
+**Security**
+- Passwords hashed with bcrypt; login with expiring JWT tokens; users can only see and change their own records.
+- Every input validated (ranges, allowed values, email, password strength, no future dates).
+- All database access through the SQLAlchemy ORM, which prevents SQL injection; secrets kept in environment variables.
 
-26 automated tests cover the formulas, login and security, input validation, food logging, the diet and allergy rules,
-the meal and workout recommenders, progress tracking, weekly insights and the assistant's safety rule. They run
-automatically on every update (see the **Tests** badge above). In an evaluation of 384 combinations of diet, allergies,
-goal and meal, the meal recommender never suggested a meal that broke the user's diet or allergy settings.
+**Quality**
+- **57 automated tests**: 32 API, security and integration tests, and 25 unit tests for the ML layer.
+- **94% code coverage** of the backend and ML layer, linting with ruff, and a production build of the website.
+- All of this runs on [GitHub Actions](https://github.com/Maheshdasi/FitPlate/actions) on every update.
 
-## Technology
+## Technology and project structure
 
 | Layer | Technology |
 |---|---|
 | Frontend | React 18, Vite, Tailwind CSS, Recharts, React Router |
-| Backend | Python, FastAPI, SQLAlchemy 2, Pydantic |
-| Database | PostgreSQL |
+| Backend | Python 3.12, FastAPI, SQLAlchemy 2, Pydantic |
+| Database | PostgreSQL (12 tables with constraints and indexes) |
 | Authentication | JWT and bcrypt |
 | AI / ML | scikit-learn, Pandas, NumPy |
-
-## Project structure
+| Testing and CI | pytest, coverage, ruff, GitHub Actions |
+| Deployment | Docker, Render blueprint, GitHub Codespaces |
 
 ```
 FitPlate/
 ├── frontend/      React website: 14 pages, charts and the API client
-├── backend/       FastAPI application: routes, database models, validation, security, tests
-├── ml/            Machine-learning and calculation modules
+├── backend/       FastAPI app: routes, models, validation, security and 57 tests
+├── ml/            Formulas, rules, ML models and the evaluation script
 ├── database/      PostgreSQL schema and the food, meal and exercise datasets
-└── docs/          Project report, API reference, algorithm details and screenshots
+├── docs/          Project report, architecture, algorithms, API reference, setup guide
+└── scripts/       One-click setup and start scripts for Windows
 ```
 
 ## Try it yourself
 
-There are three ways to run FitPlate. The first two need only a browser and a GitHub account.
+**Log in** with the demo account **`demo@fitness.app`** / **`Demo@1234`** (four months of sample history),
+or click "Get started" to create a new account.
 
-**1. Deploy it online (live link)**
+| Option | Steps |
+|---|---|
+| **Deploy online** (live link)<br>[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Maheshdasi/FitPlate) | Click the button, sign in to Render with GitHub and click **Deploy Blueprint**. After 5 to 10 minutes the service is **Live**; open its `onrender.com` link. |
+| **Run in the browser**<br>[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1) | Click the button, then **Create codespace**. After 3 to 5 minutes the website opens in a new tab (or use the **PORTS** tab, port 5173). |
+| **Run on your computer** | Install Python 3.12, Node.js and PostgreSQL. On Windows run `scripts\windows\setup.bat` once, then `scripts\windows\start.bat`. Other systems: [docs/SETUP.md](docs/SETUP.md). |
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Maheshdasi/FitPlate)
-
-1. Click the button above and sign in to Render with GitHub (the free plan is enough).
-2. Click **Deploy Blueprint**. Render reads [`render.yaml`](render.yaml) and creates the website, the API and a PostgreSQL database.
-3. After about 5 to 10 minutes the service shows **Live**. Open its `onrender.com` link.
-
-On the free plan the site sleeps after 15 minutes without visitors and takes about a minute to wake up.
-
-**2. Run it in GitHub Codespaces (in the browser)**
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1)
-
-1. Click the button above, then **Create codespace**.
-2. Wait about 3 to 5 minutes while it installs everything and loads the demo data.
-3. The website opens in a new tab. If it doesn't, open the **PORTS** tab and click the globe icon next to port **5173**.
-
-**3. Run it on your own computer**
-
-Install Python 3.12 or 3.13, Node.js and PostgreSQL. On Windows, double-click `setup-windows.bat` once and then
-`start-windows.bat`. On macOS or Linux, follow the manual steps in [docs/SETUP.md](docs/SETUP.md).
-
-**Log in** with the demo account **`demo@fitness.app`** / **`Demo@1234`**, which has four months of sample history,
-or click "Get started" to create a new account. The API documentation is at `/api/docs` on the live site,
-or `/docs` on port 8000 in Codespaces and locally.
+The API documentation (Swagger) is at `/api/docs` on the deployed site, or `/docs` on port 8000 otherwise.
 
 ## Documentation
 
-- [Project report](docs/PROJECT_REPORT.md): problem statement, literature survey, objectives, design, methodology, testing and results
-- [Algorithms](docs/ML_AND_ALGORITHMS.md): every formula, rule and model in detail
-- [API reference](docs/API.md): all REST endpoints
-- [Database schema](database/schema.sql)
-- [Setup and deployment](docs/SETUP.md)
+| Document | Contents |
+|---|---|
+| [Project report](docs/PROJECT_REPORT.md) | Problem statement, literature survey, objectives, existing and proposed system, methodology, testing, results, future scope |
+| [Architecture](docs/ARCHITECTURE.md) | System, sequence, user-journey and database diagrams |
+| [Algorithms](docs/ML_AND_ALGORITHMS.md) | Every formula, rule and model, with a worked example |
+| [API reference](docs/API.md) | All REST endpoints with request and response examples |
+| [Database schema](database/schema.sql) | Tables, constraints and indexes |
+| [Setup guide](docs/SETUP.md) | Running locally, on Codespaces and on Render |
 
-## Disclaimer
+## Author
+
+**Mahesh Dasi** ([@Maheshdasi](https://github.com/Maheshdasi))
+Final-year B.Tech capstone project.
+
+## License and disclaimer
+
+Released under the [MIT License](LICENSE).
 
 Calorie and nutrition values are estimates, and the assistant gives general guidance only.
 FitPlate does not provide medical advice, diagnosis or treatment.

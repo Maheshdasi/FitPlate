@@ -236,7 +236,14 @@ function recommend(user, slot, date):
 
 ### 12.1 Automated API and unit tests
 
-`backend/tests/test_api.py` runs against a separate PostgreSQL database. **Result: 26 of 26 passed.**
+**Result: 57 of 57 passed, with 94% code coverage** of the backend and ML layer. The tests run automatically on
+GitHub Actions on every update, together with a lint check (ruff) and the ML evaluation script.
+
+- `backend/tests/test_api.py`: 32 API and integration tests against a separate PostgreSQL database (table below,
+  plus the dashboard, water logging, history endpoints, the what-if calculator and the production server).
+- `backend/tests/test_ml.py`: 25 unit tests for the ML layer (WHO BMI cut-offs, macro totals, diet hierarchy,
+  calorie sharing between meals, ranking and portion limits, weekly splits for 2 to 6 days, varied sessions,
+  regression on a known trend, cluster naming, weekly insight sentences, typo-tolerant intents, medical safety rule).
 
 | Area | Test | Expected | Result |
 |---|---|---|---|
@@ -267,6 +274,8 @@ function recommend(user, slot, date):
 | Assistant | Dinner for vegetarian has no chicken/fish | compliant | Pass |
 
 ### 12.2 ML evaluation
+
+Reproduce these numbers with `python -m ml.evaluate` from the project root.
 
 | Component | Method | Result |
 |---|---|---|
@@ -309,9 +318,15 @@ dashboard → mobile menu. **No JavaScript errors.** All 14 pages were also revi
 - The regression trend for the demo user shows about -0.24 kg/week with an estimated target date, labelled as a trend rather than a promise.
 - Responsive layout tested at mobile and desktop widths.
 
-**Screenshots to include in the final report** (take them from the running app with the demo account):
-Landing, Registration, Profile Setup, Dashboard, Calculator, Food Tracker, Meal Recommendations,
-Workout Plan, Workout Tracker, Progress (30 days and 6 months), Weekly Insights, Assistant, Settings, Swagger UI.
+**Screenshots** of the main pages are in [`docs/screenshots`](screenshots), and an animated walkthrough of the
+main user flow is in [`docs/assets/demo.gif`](assets/demo.gif):
+
+| | |
+|---|---|
+| ![Dashboard](screenshots/dashboard.png) | ![Calculator](screenshots/calculator.png) |
+| Dashboard | Calorie and macro calculator |
+| ![Meal plan](screenshots/meal-plan.png) | ![Weekly insights](screenshots/weekly-insights.png) |
+| Meal recommendations | Weekly insights |
 
 ## 14. Limitations
 

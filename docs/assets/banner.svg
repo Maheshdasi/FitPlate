@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" width="1280" height="320" role="img" aria-label="FitPlate: AI Fitness and Nutrition Platform">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12352A"/>
+      <stop offset="1" stop-color="#1C523A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" rx="24" fill="url(#bg)"/>
+
+  <!-- calorie ring motif -->
+  <g transform="translate(1060 160)" fill="none" stroke-linecap="round">
+    <circle r="104" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="20"/>
+    <circle r="104" stroke="#4F9A73" stroke-width="20" stroke-dasharray="470 654" transform="rotate(-90)"/>
+    <circle r="72" stroke="#FFFFFF" stroke-opacity="0.06" stroke-width="10"/>
+    <circle r="72" stroke="#5B8DDB" stroke-width="10" stroke-dasharray="70 453" transform="rotate(-90)"/>
+    <circle r="72" stroke="#E5AE3C" stroke-width="10" stroke-dasharray="150 453" stroke-dashoffset="-76" transform="rotate(-90)"/>
+    <circle r="72" stroke="#C9739A" stroke-width="10" stroke-dasharray="78 453" stroke-dashoffset="-232" transform="rotate(-90)"/>
+  </g>
+  <text x="1060" y="156" text-anchor="middle" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="800" fill="#FFFFFF">550</text>
+  <text x="1060" y="182" text-anchor="middle" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" fill="#FFFFFF" fill-opacity="0.7">kcal left today</text>
+
+  <!-- logo -->
+  <g transform="translate(72 70)">
+    <rect width="56" height="56" rx="14" fill="#FFFFFF"/>
+    <circle cx="28" cy="28" r="15" fill="none" stroke="#23694A" stroke-width="5.5" stroke-dasharray="70 25" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+  </g>
+  <text x="146" y="113" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="44" font-weight="800" fill="#FFFFFF">FitPlate</text>
+
+  <text x="72" y="182" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="700" fill="#FFFFFF">AI Fitness &amp; Nutrition Platform</text>
+  <text x="72" y="220" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="19" fill="#FFFFFF" fill-opacity="0.75">Know what to eat, how to train, and whether it's working.</text>
+
+  <!-- tech chips -->
+  <g font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="600" fill="#D6EADF">
+    <rect x="72" y="248" width="76" height="30" rx="15" fill="#FFFFFF" fill-opacity="0.1"/><text x="110" y="268" text-anchor="middle">React</text>
+    <rect x="158" y="248" width="88" height="30" rx="15" fill="#FFFFFF" fill-opacity="0.1"/><text x="202" y="268" text-anchor="middle">FastAPI</text>
+    <rect x="256" y="248" width="112" height="30" rx="15" fill="#FFFFFF" fill-opacity="0.1"/><text x="312" y="268" text-anchor="middle">PostgreSQL</text>
+    <rect x="378" y="248" width="120" height="30" rx="15" fill="#FFFFFF" fill-opacity="0.1"/><text x="438" y="268" text-anchor="middle">scikit-learn</text>
+    <rect x="508" y="248" width="128" height="30" rx="15" fill="#FFFFFF" fill-opacity="0.1"/><text x="572" y="268" text-anchor="middle">Pandas, NumPy</text>
+  </g>
+</svg>
