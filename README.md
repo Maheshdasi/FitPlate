@@ -15,6 +15,11 @@
 </p>
 
 <p align="center">
+  <a href="https://fitplate-0xeo.onrender.com"><img src="https://img.shields.io/badge/Live%20demo-fitplate--0xeo.onrender.com-23694A?style=for-the-badge" alt="Live demo"></a>
+</p>
+
+<p align="center">
+  <a href="https://fitplate-0xeo.onrender.com"><b>Live demo</b></a> |
   <a href="#try-it-yourself"><b>Try it</b></a> |
   <a href="#how-it-works"><b>How it works</b></a> |
   <a href="#results"><b>Results</b></a> |
@@ -243,6 +248,9 @@ FitPlate/
 ```
 
 ## Try it yourself
+
+**Live demo: [fitplate-0xeo.onrender.com](https://fitplate-0xeo.onrender.com)**. The free server sleeps when nobody is using it,
+so the first visit can take about a minute to load.
 
 **Log in** with the demo account **`demo@fitness.app`** / **`Demo@1234`** (four months of sample history),
 or click "Get started" to create a new account.
