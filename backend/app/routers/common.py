@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 
 
 def resolve_date(d: date | None) -> date:

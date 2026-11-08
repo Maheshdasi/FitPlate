@@ -9,7 +9,6 @@ keep using `uvicorn app.main:app` together with `npm run dev`.
 """
 
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse

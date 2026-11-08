@@ -7,10 +7,10 @@ os.environ.setdefault("JWT_SECRET", "test-secret")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
+from seed import load_catalogue  # noqa: E402
 
 from app.database import Base, SessionLocal, engine  # noqa: E402
 from app.main import app  # noqa: E402
-from seed import load_catalogue  # noqa: E402
 
 PROFILE = {
     "name": "Test User", "age": 25, "gender": "male", "height_cm": 175, "weight_kg": 80,

@@ -67,11 +67,13 @@ def analyse_week(days: list[dict], targets: dict, planned_workouts: int,
         # --- Protein
         ratio = avg_protein / prot_target if prot_target else 0
         if ratio < 0.9:
-            add("warn", f"Your average protein intake was {round(avg_protein)} g, below your target of {prot_target} g.")
+            add("warn", f"Your average protein intake was {round(avg_protein)} g, "
+                        f"below your target of {prot_target} g.")
             suggestions.append("Try adding a protein-rich snack in the afternoon (roasted chana, curd, paneer, "
                                "eggs or a sprouts salad) to help you reach your protein target.")
         else:
-            add("good", f"Your average protein intake was {round(avg_protein)} g, meeting your target of {prot_target} g.")
+            add("good", f"Your average protein intake was {round(avg_protein)} g, "
+                        f"meeting your target of {prot_target} g.")
 
     # --- Workouts
     tone = "good" if workouts >= planned_workouts else "info" if workouts > 0 else "warn"

@@ -17,8 +17,19 @@ from sqlalchemy import delete, select
 
 from app.config import SEED_DIR
 from app.database import Base, SessionLocal, engine
-from app.models import (FoodItem, FoodLog, Meal, MealRecommendation, User, UserProfile, WaterLog,
-                        WeeklyInsight, WeightLog, WorkoutExercise, WorkoutLog)
+from app.models import (
+    FoodItem,
+    FoodLog,
+    Meal,
+    MealRecommendation,
+    User,
+    UserProfile,
+    WaterLog,
+    WeeklyInsight,
+    WeightLog,
+    WorkoutExercise,
+    WorkoutLog,
+)
 from app.security import hash_password
 from app.services.nutrition import DIET_ORDER, profile_targets
 from app.services.recommendations import active_plan, reset_models, session_for_date

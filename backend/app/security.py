@@ -44,8 +44,8 @@ def get_current_user(
     try:
         payload = jwt.decode(creds.credentials, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         user_id = int(payload.get("sub"))
-    except (JWTError, TypeError, ValueError):
-        raise unauthorized
+    except (JWTError, TypeError, ValueError) as err:
+        raise unauthorized from err
     user = db.get(User, user_id)
     if user is None or not user.is_active:
         raise unauthorized

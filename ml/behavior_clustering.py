@@ -59,11 +59,14 @@ def _name_clusters(centroids: np.ndarray) -> dict[int, str]:
     remaining = set(range(len(centroids)))
 
     best = max(remaining, key=lambda i: nutrition[i] + workout[i])
-    names[best] = "Consistent achiever"; remaining.discard(best)
+    names[best] = "Consistent achiever"
+    remaining.discard(best)
     worst = min(remaining, key=lambda i: nutrition[i] + workout[i])
-    names[worst] = "Getting started"; remaining.discard(worst)
+    names[worst] = "Getting started"
+    remaining.discard(worst)
     nut = max(remaining, key=lambda i: nutrition[i] - workout[i])
-    names[nut] = "Nutrition-focused"; remaining.discard(nut)
+    names[nut] = "Nutrition-focused"
+    remaining.discard(nut)
     for i in remaining:
         names[i] = "Workout-focused"
     return names

@@ -6,7 +6,7 @@ import time
 import psycopg2
 
 url = os.environ.get("DATABASE_URL", "").replace("postgresql+psycopg2://", "postgresql://")
-for attempt in range(60):
+for _ in range(60):
     try:
         psycopg2.connect(url).close()
         print("Database is ready.")

@@ -163,7 +163,7 @@ def active_plan(db: Session, user: User, regenerate: bool = False) -> WorkoutPla
     built = workout_model(db).build_plan(profile_dict(profile))
     built["profile"] = {"preferred_workout_type": profile.preferred_workout_type}
     schedule = SCHEDULES[len(built["sessions"])]
-    for session, weekday in zip(built["sessions"], schedule):
+    for session, weekday in zip(built["sessions"], schedule, strict=True):
         session["weekday"] = weekday
         session["weekday_name"] = WEEKDAYS[weekday]
     plan = WorkoutPlan(user_id=user.id, is_active=True, days_per_week=len(built["sessions"]),
