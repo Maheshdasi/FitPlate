@@ -250,10 +250,10 @@ or click "Get started" to create a new account.
 | Option | Steps |
 |---|---|
 | **Deploy online** (live link)<br>[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Maheshdasi/FitPlate) | Click the button, sign in to Render with GitHub and click **Deploy Blueprint**. After 5 to 10 minutes the service is **Live**; open its `onrender.com` link. |
-| **Run in the browser**<br>[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1) | Click the button, then **Create codespace**. After 3 to 5 minutes the website opens in a new tab (or use the **PORTS** tab, port 5173). |
+| **Run in the browser**<br>[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1) | Click the button, then **Create codespace**. A code editor opens and sets everything up (3 to 5 minutes). The app then opens in a new tab; if it doesn't, open the **PORTS** tab and click the globe icon next to port **8000**. |
 | **Run on your computer** | Install Python 3.12, Node.js and PostgreSQL. On Windows run `scripts\windows\setup.bat` once, then `scripts\windows\start.bat`. Other systems: [docs/SETUP.md](docs/SETUP.md). |
 
-The API documentation (Swagger) is at `/api/docs` on the deployed site, or `/docs` on port 8000 otherwise.
+The API documentation (Swagger) is at `/api/docs` on Render and Codespaces, or `http://localhost:8000/docs` when run locally.
 
 ## Documentation
 

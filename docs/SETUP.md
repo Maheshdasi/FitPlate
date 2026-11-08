@@ -19,10 +19,10 @@ The whole app (website, API and PostgreSQL database) runs inside GitHub Codespac
 
 1. Click **[Open in GitHub Codespaces](https://codespaces.new/Maheshdasi/FitPlate?quickstart=1)** and then **Create codespace** (you need to be signed in to GitHub).
 2. Wait about 3 to 5 minutes the first time while it installs everything and loads the demo data. You can watch the progress in the terminal.
-3. The website opens in a new browser tab. If it doesn't, open the **PORTS** tab at the bottom and click the globe icon next to port **5173**.
+3. When setup finishes, the terminal shows **FitPlate is running** and the app opens in a new browser tab. If it doesn't (for example, the browser blocked the pop-up), open the **PORTS** tab at the bottom and click the globe icon next to port **8000**. Keep that terminal open while you use the app.
 4. Log in with the demo account: **`demo@fitness.app`** / **`Demo@1234`** (4 months of sample history), or click "Get started" to create your own account.
 
-The API documentation (Swagger) is on port **8000** at `/docs`. Every push also runs the 57 automated tests on GitHub Actions; see the **Tests** badge in the README.
+The API documentation (Swagger) is at `/api/docs` on the same address. Every push also runs the 57 automated tests on GitHub Actions; see the **Tests** badge in the README.
 
 ## On Windows (easiest)
 

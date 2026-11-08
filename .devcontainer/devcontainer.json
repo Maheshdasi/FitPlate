@@ -4,19 +4,33 @@
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "22"
+    }
   },
-  "forwardPorts": [5173, 8000],
+  "forwardPorts": [
+    8000
+  ],
   "portsAttributes": {
-    "5173": { "label": "FitPlate website", "onAutoForward": "openBrowser" },
-    "8000": { "label": "FitPlate API (Swagger at /docs)", "onAutoForward": "silent" }
+    "8000": {
+      "label": "FitPlate app (website + API)",
+      "onAutoForward": "openBrowser"
+    }
   },
   "postCreateCommand": "bash .devcontainer/setup.sh",
-  "postStartCommand": "bash .devcontainer/start.sh",
   "customizations": {
-    "codespaces": { "openFiles": ["README.md"] },
+    "codespaces": {
+      "openFiles": [
+        "README.md"
+      ]
+    },
     "vscode": {
-      "extensions": ["ms-python.python", "dbaeumer.vscode-eslint", "bradlc.vscode-tailwindcss"]
+      "extensions": [
+        "ms-python.python",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss"
+      ]
     }
-  }
+  },
+  "postAttachCommand": "bash .devcontainer/start.sh"
 }

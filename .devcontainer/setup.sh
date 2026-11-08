@@ -21,7 +21,7 @@ python .devcontainer/wait-for-db.py
 echo "==> Loading foods, meals, exercises and the demo account"
 (cd backend && python seed.py)
 
-echo "==> Installing frontend packages"
-(cd frontend && [ -f .env ] || cp .env.example .env; npm install --no-audit --no-fund)
+echo "==> Installing frontend packages and building the website"
+(cd frontend && ([ -f .env ] || cp .env.example .env) && npm install --no-audit --no-fund && npm run build)
 
 echo "==> Setup complete"
