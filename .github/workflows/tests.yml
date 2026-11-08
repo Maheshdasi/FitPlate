@@ -35,9 +35,13 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - name: Install packages
         run: pip install -r backend/requirements.txt
-      - name: Run the 26 API, security, formula and ML tests
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Run tests with coverage
         working-directory: backend
-        run: pytest -v
+        run: pytest -v --cov=app --cov=../ml --cov-report=term
+      - name: Evaluate the ML models
+        run: python -m ml.evaluate
 
   frontend:
     name: Frontend build (React + Vite)

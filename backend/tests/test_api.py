@@ -191,3 +191,57 @@ def test_chat_meal_suggestion_respects_diet(client, auth):
     r = client.post("/ai/chat", json={"message": "What should I eat for dinner?"}, headers=auth).json()
     assert r["intent"] == "meal_suggestion"
     assert "chicken" not in r["reply"].lower() and "fish" not in r["reply"].lower()
+
+
+# ---------------------------------------------------------------- dashboard, water and history
+def test_dashboard_has_everything_the_page_needs(client, auth):
+    d = client.get("/dashboard", headers=auth).json()
+    for key in ("targets", "consumed", "remaining", "water", "weight", "workout", "week", "next_meal"):
+        assert key in d
+    assert len(d["week"]) == 7
+
+
+def test_water_add_and_undo(client, auth):
+    first = client.post("/progress/water", json={"amount_ml": 250}, headers=auth).json()["total_ml"]
+    second = client.post("/progress/water", json={"amount_ml": 500}, headers=auth).json()["total_ml"]
+    assert second == first + 500
+    assert client.delete("/progress/water/last", headers=auth).json()["total_ml"] == first
+    assert client.post("/progress/water", json={"amount_ml": 5000}, headers=auth).status_code == 422
+
+
+def test_weight_entry_can_be_deleted(client, auth):
+    entry = client.post("/progress/weight", json={"weight_kg": 79.5}, headers=auth).json()
+    assert client.delete(f"/progress/weight/{entry['id']}", headers=auth).status_code == 204
+    assert client.delete(f"/progress/weight/{entry['id']}", headers=auth).status_code == 404
+
+
+def test_workout_and_insight_history(client, auth):
+    plan = client.get("/recommendations/workouts", headers=auth).json()
+    ex = plan["sessions"][0]["exercises"][0]["exercise_id"]
+    client.post("/workout-log", json={"exercise_id": ex, "completed": True, "sets_completed": 2}, headers=auth)
+    history = client.get("/workout-log/history", headers=auth).json()
+    assert history and history[0]["exercises"][0]["exercise_id"] == ex
+    client.get("/insights/weekly", headers=auth)
+    assert client.get("/insights/history", headers=auth).json()
+
+
+def test_what_if_calculator_does_not_change_profile(client, auth):
+    r = client.post("/nutrition/calculate", headers=auth, json={
+        "age": 30, "gender": "female", "height_cm": 160, "weight_kg": 60,
+        "activity_level": "sedentary", "fitness_goal": "maintenance"}).json()
+    assert r["daily_calories"] == round((600 + 1000 - 150 - 161) * 1.2)
+    assert client.get("/profile", headers=auth).json()["weight_kg"] == 80
+
+
+# ---------------------------------------------------------------- production server (website + API)
+def test_production_server_serves_api_and_website(tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from app import server
+    (tmp_path / "assets").mkdir()
+    (tmp_path / "index.html").write_text("<html>FitPlate</html>")
+    monkeypatch.setattr(server, "DIST", tmp_path)
+    with TestClient(server.site) as c:
+        assert c.get("/api/").json()["status"] == "ok"
+        assert "FitPlate" in c.get("/dashboard").text          # React routes fall back to index.html
+        assert "FitPlate" in c.get("/../../etc/passwd").text   # no files outside the build folder

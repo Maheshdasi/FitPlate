@@ -17,3 +17,7 @@ dist/
 .DS_Store
 .vscode/
 .idea/
+
+# Test coverage data
+.coverage
+htmlcov/
