@@ -159,8 +159,15 @@ def active_plan(db: Session, user: User, regenerate: bool = False) -> WorkoutPla
     if plan and not regenerate and _plan_matches(plan, profile):
         return plan
 
+    variation, avoid_ids = 0, []
+    if plan and regenerate:
+        # A manual rebuild: give a different variation instead of the same plan again
+        variation = (plan.plan.get("variation", 0) or 0) + 1
+        avoid_ids = [e["exercise_id"] for s in plan.plan["sessions"] for e in s["exercises"]]
+
     db.execute(update(WorkoutPlan).where(WorkoutPlan.user_id == user.id).values(is_active=False))
-    built = workout_model(db).build_plan(profile_dict(profile))
+    built = workout_model(db).build_plan(profile_dict(profile), variation=variation, avoid_ids=avoid_ids)
+    built["variation"] = variation
     built["profile"] = {"preferred_workout_type": profile.preferred_workout_type}
     schedule = SCHEDULES[len(built["sessions"])]
     for session, weekday in zip(built["sessions"], schedule, strict=True):

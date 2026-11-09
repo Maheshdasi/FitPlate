@@ -236,7 +236,7 @@ function recommend(user, slot, date):
 
 ### 12.1 Automated API and unit tests
 
-**Result: 57 of 57 passed, with 94% code coverage** of the backend and ML layer. The tests run automatically on
+**Result: 58 of 58 passed, with 94% code coverage** of the backend and ML layer. The tests run automatically on
 GitHub Actions on every update, together with a lint check (ruff) and the ML evaluation script.
 
 - `backend/tests/test_api.py`: 32 API and integration tests against a separate PostgreSQL database (table below,

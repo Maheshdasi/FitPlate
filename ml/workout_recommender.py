@@ -135,12 +135,22 @@ class WorkoutRecommender:
             return False
         return True
 
-    def build_plan(self, profile: dict) -> dict:
+    def build_plan(self, profile: dict, variation: int = 0, avoid_ids=None) -> dict:
+        """Build a weekly plan.
+
+        variation 0 gives the best-scoring plan. A higher variation (used by "Rebuild plan") steers away
+        from the exercises in `avoid_ids` (the previous plan) and adds a small seeded random nudge, so
+        each rebuild gives a different but still well-matched set of exercises.
+        """
         goal = profile.get("fitness_goal", "general_fitness")
         level = profile.get("workout_level", "beginner")
         days = profile.get("workout_days_per_week", 3)
         user_vec = self._encode_user(profile).reshape(1, -1)
         sims = cosine_similarity(self.features, user_vec).ravel()
+        if variation:
+            sims = sims + np.random.default_rng(variation).uniform(0, 0.08, len(sims))
+            avoid = set(avoid_ids or [])
+            sims = sims - np.array([0.25 if e["id"] in avoid else 0.0 for e in self.exercises])
 
         sets, reps, rest = PRESCRIPTION[goal]
         sets = max(2, sets + LEVEL_SET_ADJUST[level])

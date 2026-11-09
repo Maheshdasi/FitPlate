@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronDown, Info, RefreshCw } from 'lucide-react'
 import { get, localDate } from '../api/client'
@@ -49,10 +49,26 @@ export function ExerciseTable({ exercises }) {
 
 export default function Workouts() {
   const today = localDate()
-  const [regen, setRegen] = useState(0)
-  const { data, error, loading, reload } = useApi(
-    () => get('/recommendations/workouts', { date: today, regenerate: regen > 0 || undefined }), [today, regen])
+  const { data, error, loading, reload, setData } = useApi(
+    () => get('/recommendations/workouts', { date: today }), [today])
   const [openDay, setOpenDay] = useState(null)
+  const [rebuilding, setRebuilding] = useState(false)
+  const [toast, setToast] = useState('')
+  useEffect(() => { if (toast) { const t = setTimeout(() => setToast(''), 3500); return () => clearTimeout(t) } }, [toast])
+
+  const rebuild = async () => {
+    setRebuilding(true)
+    try {
+      const fresh = await get('/recommendations/workouts', { date: today, regenerate: true })
+      setData(fresh)
+      setOpenDay(null)
+      setToast('Plan rebuilt with a fresh set of exercises.')
+    } catch (e) {
+      setToast(`Could not rebuild the plan: ${e.message}`)
+    } finally {
+      setRebuilding(false)
+    }
+  }
 
   if (loading && !data) return <Spinner label="Building your plan…" />
   if (error) return <ErrorNote message={error} onRetry={reload} />
@@ -63,11 +79,12 @@ export default function Workouts() {
 
   return (
     <>
+      {toast && <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-lg" role="status">{toast}</div>}
       <PageHeader title="Your workout plan"
         subtitle={`${data.days_per_week} sessions a week for ${GOALS[data.goal].toLowerCase()}, at ${LEVELS[data.level].toLowerCase()} level. Change your goal, level or days in settings and the plan updates automatically.`}
         actions={<>
-          <button className="btn-secondary" onClick={() => setRegen((n) => n + 1)} disabled={loading}>
-            <RefreshCw size={15} className={loading ? 'animate-spin' : ''} aria-hidden /> Rebuild plan
+          <button className="btn-secondary" onClick={rebuild} disabled={rebuilding}>
+            <RefreshCw size={15} className={rebuilding ? 'animate-spin' : ''} aria-hidden /> {rebuilding ? 'Rebuilding…' : 'Rebuild plan'}
           </button>
           <Link to="/workout-tracker" className="btn-primary">Track today's workout</Link>
         </>} />

@@ -140,6 +140,20 @@ def test_workout_plan_matches_profile(client, auth):
     assert all(e["equipment"] in ("bodyweight", "dumbbell") for e in exercises)  # home training
 
 
+def test_rebuild_plan_gives_a_different_plan_that_still_fits(client, auth):
+    def ids(p):
+        return [e["exercise_id"] for s in p["sessions"] for e in s["exercises"]]
+
+    first = client.get("/recommendations/workouts", headers=auth).json()
+    again = client.get("/recommendations/workouts", headers=auth).json()
+    assert ids(again) == ids(first)  # stable until the user asks for a rebuild
+    rebuilt = client.get("/recommendations/workouts", params={"regenerate": True}, headers=auth).json()
+    assert ids(rebuilt) != ids(first)
+    exercises = [e for s in rebuilt["sessions"] for e in s["exercises"]]
+    assert all(e["difficulty"] != "advanced" for e in exercises)
+    assert all(e["equipment"] in ("bodyweight", "dumbbell") for e in exercises)
+
+
 def test_workout_log_toggle(client, auth):
     plan = client.get("/recommendations/workouts", headers=auth).json()
     ex = plan["sessions"][0]["exercises"][0]["exercise_id"]

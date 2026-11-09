@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml"><img src="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <img src="https://img.shields.io/badge/tests-57%20passing-2F7A55" alt="57 tests passing">
+  <img src="https://img.shields.io/badge/tests-58%20passing-2F7A55" alt="58 tests passing">
   <img src="https://img.shields.io/badge/coverage-94%25-2F7A55" alt="94% coverage">
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
@@ -48,7 +48,7 @@ It is built around **everyday Indian meals** such as dal, roti, idli, paneer and
 | **Five ML techniques** | Content-based filtering, similarity ranking with MMR, linear regression, K-Means clustering and a text classifier |
 | **Weekly review in plain words** | "You stayed close to your calorie target on 5 out of 7 days", followed by practical suggestions |
 | **Offline AI assistant** | Answers from the user's own data, tolerates typos, and declines medical questions |
-| **Tested and secure** | 57 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
+| **Tested and secure** | 58 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
 
 ## Contents
 
@@ -221,7 +221,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 - All database access through the SQLAlchemy ORM, which prevents SQL injection; secrets kept in environment variables.
 
 **Quality**
-- **57 automated tests**: 32 API, security and integration tests, and 25 unit tests for the ML layer.
+- **58 automated tests**: 33 API, security and integration tests, and 25 unit tests for the ML layer.
 - **94% code coverage** of the backend and ML layer, linting with ruff, and a production build of the website.
 - All of this runs on [GitHub Actions](https://github.com/Maheshdasi/FitPlate/actions) on every update.
 
@@ -240,7 +240,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 ```
 FitPlate/
 ├── frontend/      React website: 14 pages, charts and the API client
-├── backend/       FastAPI app: routes, models, validation, security and 57 tests
+├── backend/       FastAPI app: routes, models, validation, security and 58 tests
 ├── ml/            Formulas, rules, ML models and the evaluation script
 ├── database/      PostgreSQL schema and the food, meal and exercise datasets
 ├── docs/          Project report, architecture, algorithms, API reference, setup guide
