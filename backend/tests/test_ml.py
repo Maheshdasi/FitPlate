@@ -6,7 +6,7 @@ from datetime import date, timedelta
 import pytest
 
 from app.config import SEED_DIR
-from ml import behavior_clustering
+from ml import behavior_clustering, progression
 from ml.calculations import bmi_category, calculate_bmr, calculate_targets
 from ml.chat_assistant import MEDICAL_PATTERN, ChatAssistant
 from ml.meal_recommender import MealRecommender, is_compatible, slot_targets
@@ -187,3 +187,47 @@ def test_medical_questions_are_caught_by_the_safety_rule():
     assert MEDICAL_PATTERN.search("Can I eat rice if I have diabetes?")
     assert MEDICAL_PATTERN.search("my knee pain after squats")
     assert not MEDICAL_PATTERN.search("suggest a high protein breakfast")
+
+
+# ---------------------------------------------------------------- progressive overload
+BENCH = {"category": "chest", "equipment": "barbell", "reps": "8-12", "sets": 3}
+SQUAT = {"category": "legs", "equipment": "barbell", "reps": "8-12", "sets": 3}
+
+
+def _sets(*pairs):
+    return [{"weight_kg": w, "reps": r, "done": True} for w, r in pairs]
+
+
+def test_epley_one_rep_max():
+    assert progression.e1rm(60, 10) == 80.0 and progression.e1rm(100, 1) == 100.0
+    assert progression.e1rm(0, 10) == 0 and progression.e1rm(50, 0) == 0
+
+
+@pytest.mark.parametrize("ex, last, weight, text", [
+    (BENCH, _sets((40, 12), (40, 12), (40, 12)), 42.5, "Go up to 42.5 kg"),       # top of range on every set
+    (SQUAT, _sets((60, 12), (60, 12), (60, 12)), 65, "Go up to 65 kg"),           # legs jump 5 kg
+    (BENCH, _sets((40, 10), (40, 9), (40, 8)), 40, "add a rep"),                 # inside the range: same weight
+    (BENCH, _sets((40, 5), (40, 4), (40, 6)), 35, "Drop to 35 kg"),              # well short: deload about 10%
+    (BENCH, _sets((40, 12), (40, 12)), 40, "add a rep"),                         # a planned set was skipped
+])
+def test_double_progression(ex, last, weight, text):
+    s = progression.suggest(ex, last)
+    assert s["weight_kg"] == weight and text in s["text"]
+
+
+def test_bodyweight_timed_and_cardio_progress_differently():
+    pushups = {"category": "chest", "equipment": "bodyweight", "reps": "10-15", "sets": 3}
+    assert progression.suggest(pushups, [{"reps": 15, "done": True}] * 3)["reps"] == 17
+    plank = {"category": "core", "equipment": "bodyweight", "reps": "30-45 sec", "sets": 3}
+    assert progression.exercise_kind(plank) == "timed"
+    assert progression.suggest(plank, [{"seconds": 45, "done": True}] * 3)["seconds"] == 50
+    jog = {"category": "cardio", "equipment": "bodyweight", "reps": "20 min", "sets": 1}
+    assert progression.suggest(jog, [{"seconds": 20 * 60, "done": True}])["minutes"] == 22
+    assert progression.suggest(jog, [{"seconds": 40 * 60, "done": True}])["minutes"] == 40  # capped
+
+
+def test_personal_records():
+    today = _sets((50, 8), (52.5, 8), (50, 10))  # e1RM 63.3, 66.5, 66.7
+    assert progression.mark_records("weighted", today, best_before=65) == [1, 2]
+    assert progression.mark_records("weighted", today, best_before=0) == []   # first session is the baseline
+    assert progression.volume(today + [{"weight_kg": 99, "reps": 9, "done": False}]) == 1320

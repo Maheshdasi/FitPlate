@@ -12,6 +12,8 @@ The UI labels each one too (for example the "Formula-based" chip on the calculat
 | Meal ranking | **ML** | Content-based filtering: TF-IDF + cosine similarity | `ml/meal_recommender.py` |
 | Weekly workout split; sets/reps/rest | **Rule** | Strength-training guidelines | `ml/workout_recommender.py` |
 | Exercise selection | **ML** | Feature vectors + cosine similarity + MMR | `ml/workout_recommender.py` |
+| Next-session targets | **Rule** | Double progression (add weight at the top of the rep range) | `ml/progression.py` |
+| Strength comparison and PRs | **Formula** | Epley estimated one-rep max | `ml/progression.py` |
 | Weight trend and target date | **ML** | Linear regression | `ml/progress_predictor.py` |
 | Habit pattern | **ML** | K-Means clustering (k = 4) | `ml/behavior_clustering.py` |
 | Weekly statistics | **Data analysis** | Pandas aggregation | `ml/weekly_insights.py` |
@@ -89,6 +91,21 @@ cardio and compound preference, goal-tag weights). Exercises are ranked by cosin
 **MMR** picks each next exercise with
 `0.7·(similarity - 0.15·times_used_this_week) - 0.3·(1 if same target muscle as an already chosen exercise)`,
 so sessions are relevant, varied within a day, and rotate across days.
+
+### Progressive overload in the workout tracker (`ml/progression.py`)
+
+The tracker logs every set, in the style of workout loggers such as Hevy and Boostcamp: kg and reps for lifts,
+reps for bodyweight moves, seconds for holds and minutes for cardio.
+
+- **Estimated one-rep max (Epley)**: `e1RM = weight · (1 + reps / 30)`, so 60 kg × 10 and 70 kg × 5 can be compared.
+  A completed set whose e1RM (or reps / seconds for other kinds) beats the best before today is a **personal record**.
+  The very first session of an exercise only sets the baseline.
+- **Double progression** sets the next target from the last session:
+  every planned set at the top of the rep range → add 2.5 kg (5 kg for legs and full-body lifts from 40 kg);
+  every set inside the range → same weight, one more rep; two or more sets more than 2 reps short → drop about 10%.
+  Bodyweight moves add reps, holds add 5 seconds, cardio adds 2 minutes up to about double the planned time.
+- The set rows are pre-filled with last time's numbers and the target, a rest timer starts after each ticked set,
+  and the session shows duration, volume (kg × reps), sets done and records.
 
 ## 4. Weight trend: linear regression
 

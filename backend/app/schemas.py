@@ -206,10 +206,19 @@ class FoodLogOut(BaseModel):
 
 
 # ---------- Workouts ----------
+class SetIn(BaseModel):
+    """One set: kg and reps for lifts, reps for bodyweight moves, seconds for holds and cardio."""
+    weight_kg: float | None = Field(default=None, ge=0, le=500)
+    reps: int | None = Field(default=None, ge=0, le=300)
+    seconds: int | None = Field(default=None, ge=0, le=14400)
+    done: bool = False
+
+
 class WorkoutLogIn(BaseModel):
     exercise_id: int
     completed: bool = True
     sets_completed: int = Field(default=0, ge=0, le=20)
+    sets: list[SetIn] | None = Field(default=None, max_length=20)
     day_number: int | None = Field(default=None, ge=1, le=7)
     log_date: date | None = None
 

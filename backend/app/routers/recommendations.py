@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from ml import progression as prog
+
 from ..database import get_db
 from ..models import FoodLog, MealRecommendation, User, UserProfile, WorkoutExercise, WorkoutLog
 from ..schemas import LogMealIn, ReplaceMealIn, SplitIn, WorkoutLogIn
@@ -116,7 +118,11 @@ def log_workout(data: WorkoutLogIn, user: User = Depends(get_current_user),
         log = WorkoutLog(user_id=user.id, exercise_id=data.exercise_id, log_date=d, plan_id=plan.id)
         db.add(log)
     log.completed = data.completed
-    log.sets_completed = data.sets_completed
+    if data.sets is not None:
+        log.sets = [st.model_dump() for st in data.sets]
+        log.sets_completed = min(20, sum(1 for st in data.sets if st.done))
+    else:
+        log.sets_completed = data.sets_completed
     log.day_number = data.day_number
     db.commit()
     return {"exercise_id": data.exercise_id, "completed": log.completed, "log_date": d.isoformat(),
@@ -136,5 +142,61 @@ def workout_history(days: int = Query(default=30, ge=7, le=180),
     for log in logs:
         grouped.setdefault(log.log_date.isoformat(), []).append(
             {"exercise_id": log.exercise_id, "name": log.exercise.name,
-             "category": log.exercise.category, "sets_completed": log.sets_completed})
-    return [{"date": d, "exercises": ex} for d, ex in grouped.items()]
+             "category": log.exercise.category, "sets_completed": log.sets_completed,
+             "volume_kg": prog.volume(log.sets)})
+    return [{"date": d, "exercises": ex, "sets": sum(e["sets_completed"] for e in ex),
+             "volume_kg": round(sum(e["volume_kg"] for e in ex), 1)} for d, ex in grouped.items()]
+
+
+@router.get("/workout-log/day")
+def workout_day(date_: date | None = Query(default=None, alias="date"),
+                user: User = Depends(get_current_user),
+                _: UserProfile = Depends(get_current_profile), db: Session = Depends(get_db)):
+    """Everything the set-by-set tracker needs for one day: the sets logged so far, what was lifted last
+    time, the best so far, a progressive-overload target for each exercise and today's personal records."""
+    d = resolve_date(date_)
+    plan = recs.active_plan(db, user)
+    plan_ex = {}
+    for session in plan.plan["sessions"]:
+        for e in session["exercises"]:
+            plan_ex.setdefault(e["exercise_id"], e)
+
+    today_logs = {log.exercise_id: log for log in db.scalars(select(WorkoutLog).where(
+        WorkoutLog.user_id == user.id, WorkoutLog.log_date == d))}
+    ids = set(plan_ex) | set(today_logs)
+    past = db.scalars(select(WorkoutLog).where(
+        WorkoutLog.user_id == user.id, WorkoutLog.log_date < d, WorkoutLog.exercise_id.in_(ids),
+        WorkoutLog.sets.is_not(None)).order_by(WorkoutLog.log_date.desc())).all()
+
+    exercises, logs, volume, sets_done, pr_count = {}, {}, 0.0, 0, 0
+    for ex_id in ids:
+        meta = plan_ex.get(ex_id)
+        if meta is None:
+            log = today_logs[ex_id]
+            meta = {"category": log.exercise.category, "equipment": log.exercise.equipment, "reps": "8-12", "sets": 3}
+        kind = prog.exercise_kind(meta)
+        history = [p for p in past if p.exercise_id == ex_id and prog.done_sets(p.sets)]
+        previous = history[0] if history else None
+        best, best_at = 0.0, None
+        for p in history:
+            for st in prog.done_sets(p.sets):
+                score = prog.set_score(kind, st)
+                if score > best:
+                    best, best_at = score, {"date": p.log_date.isoformat(), **st}
+        today = today_logs.get(ex_id)
+        records = prog.mark_records(kind, today.sets, best) if today and today.sets else []
+        exercises[ex_id] = {
+            "kind": kind,
+            "previous": ({"date": previous.log_date.isoformat(), "sets": prog.done_sets(previous.sets)}
+                         if previous else None),
+            "best": {"score": best, "set": best_at} if best_at else None,
+            "suggestion": prog.suggest(meta, previous.sets if previous else None),
+            "records": records,
+        }
+        if today:
+            logs[ex_id] = {"sets": today.sets or [], "completed": today.completed}
+            volume += prog.volume(today.sets)
+            sets_done += len(prog.done_sets(today.sets)) if today.sets else today.sets_completed
+            pr_count += len(records)
+    return {"date": d.isoformat(), "logs": logs, "exercises": exercises,
+            "summary": {"volume_kg": round(volume, 1), "sets_done": sets_done, "records": pr_count}}

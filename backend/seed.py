@@ -33,6 +33,7 @@ from app.models import (
 from app.security import hash_password
 from app.services.nutrition import DIET_ORDER, profile_targets
 from app.services.recommendations import active_plan, reset_models, session_for_date
+from ml import progression
 
 DEMO_EMAIL = "demo@fitness.app"
 DEMO_PASSWORD = "Demo@1234"
@@ -61,6 +62,32 @@ def load_catalogue(db):
     reset_models()
     print(f"Catalogue: {db.query(FoodItem).count()} foods, {db.query(Meal).count()} meals, "
           f"{db.query(WorkoutExercise).count()} exercises")
+
+
+START_KG = {"barbell": 40, "dumbbell": 10, "machine": 30, "cable": 20}
+
+
+def simulate_sets(rng, ex, last):
+    """One realistic session of an exercise: follow the progression target, sometimes fall a rep or two short."""
+    target = progression.suggest(ex, last)
+    lo, hi = progression.parse_range(ex["reps"])
+    sets = []
+    for n in range(int(ex["sets"])):
+        if target["kind"] == "cardio":
+            sets.append({"weight_kg": None, "reps": None, "seconds": (target["minutes"] or lo) * 60, "done": True})
+        elif target["kind"] == "timed":
+            sets.append({"weight_kg": None, "reps": None, "done": True,
+                         "seconds": max(lo, (target["seconds"] or lo) - (5 if rng.random() < 0.25 * n else 0))})
+        else:
+            aim = target["reps"] or hi
+            reps = max(lo - 2, aim - (rng.random() < 0.3 + 0.15 * n) - (rng.random() < 0.1))
+            if rng.random() < 0.35:
+                reps = min(hi, reps + 1)  # a good day
+            weight = None
+            if target["kind"] == "weighted":
+                weight = target["weight_kg"] or START_KG.get(ex["equipment"], 20)
+            sets.append({"weight_kg": weight, "reps": int(reps), "seconds": None, "done": True})
+    return sets
 
 
 def create_demo_user(db):
@@ -93,6 +120,8 @@ def create_demo_user(db):
     profile.workout_level = "intermediate"
     profile.workout_days_per_week = 4
     profile.preferred_workout_type = "mixed"
+    profile.workout_split = "auto"
+    profile.custom_split = None
     db.add(profile)
     # Backdate the account so the history counts as "since joining"
     user.created_at = datetime.combine(start, datetime.min.time(), tzinfo=timezone.utc)
@@ -108,6 +137,7 @@ def create_demo_user(db):
     extras = [db.scalar(select(FoodItem).where(FoodItem.name == n))
               for n in ("Masala chai (with sugar)", "Banana", "Apple", "Almonds", "Buttermilk (chaas)")]
 
+    last_sets: dict[int, list] = {}
     for i in range(HISTORY_DAYS + 1):
         d = start + timedelta(days=i)
         is_today = d == today
@@ -150,14 +180,16 @@ def create_demo_user(db):
                             "hips_cm": round(100 - 3 * progress, 1), "arms_cm": round(33 + 0.6 * progress, 1)}
             db.add(WeightLog(user_id=user.id, log_date=d, weight_kg=weight, **measures))
 
-        # ---- workouts on scheduled days, ~80% attendance
+        # ---- workouts on scheduled days, ~80% attendance, logged set by set with real progression
         session = session_for_date(plan, d)
         if session and not is_today and rng.random() < 0.65 + 0.25 * (i / HISTORY_DAYS):
             for ex in session["exercises"]:
                 if rng.random() < 0.9:
+                    sets = simulate_sets(rng, ex, last_sets.get(ex["exercise_id"]))
+                    last_sets[ex["exercise_id"]] = sets
                     db.add(WorkoutLog(user_id=user.id, plan_id=plan.id, exercise_id=ex["exercise_id"],
-                                      log_date=d, day_number=session["day_number"],
-                                      sets_completed=ex["sets"], completed=True))
+                                      log_date=d, day_number=session["day_number"], sets=sets,
+                                      sets_completed=len(sets), completed=True))
     db.commit()
     print(f"Demo user ready: {DEMO_EMAIL} / {DEMO_PASSWORD} ({HISTORY_DAYS} days of history)")
 

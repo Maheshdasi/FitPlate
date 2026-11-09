@@ -248,6 +248,43 @@ def test_invalid_split_is_rejected(client, auth, body):
     assert client.put("/recommendations/workouts/split", json=body, headers=auth).status_code == 422
 
 
+def test_set_by_set_logging_previous_targets_and_records(client, auth):
+    plan = client.get("/recommendations/workouts", headers=auth).json()
+    ex = next(e for s in plan["sessions"] for e in s["exercises"] if e["equipment"] == "dumbbell")
+    first, second = "2026-10-05", "2026-10-07"
+
+    def log(day, sets, completed=True):
+        body = {"exercise_id": ex["exercise_id"], "completed": completed, "log_date": day,
+                "sets": [{"weight_kg": w, "reps": r, "done": d} for w, r, d in sets]}
+        return client.post("/workout-log", json=body, headers=auth)
+
+    hi = int(ex["reps"].split("-")[1])
+    assert log(first, [(10, hi, True)] * ex["sets"]).status_code == 201
+    day = client.get("/workout-log/day", params={"date": second}, headers=auth).json()
+    info = day["exercises"][str(ex["exercise_id"])]
+    assert info["kind"] == "weighted" and info["previous"]["date"] == first
+    assert info["suggestion"]["weight_kg"] == 12.5          # hit the top of the range, so add 2.5 kg
+    assert info["best"]["set"]["weight_kg"] == 10
+
+    # Next session: a heavier set is a personal record; an unticked set doesn't count
+    log(second, [(12.5, hi, True), (12.5, hi - 1, True), (30, 10, False)], completed=False)
+    day = client.get("/workout-log/day", params={"date": second}, headers=auth).json()
+    info = day["exercises"][str(ex["exercise_id"])]
+    assert info["records"] == [0]
+    assert day["summary"] == {"volume_kg": 12.5 * (2 * hi - 1), "sets_done": 2, "records": 1}
+    assert day["logs"][str(ex["exercise_id"])]["completed"] is False
+
+    hist = client.get("/workout-log/history", params={"date": second}, headers=auth).json()
+    assert hist[0]["date"] == first and hist[0]["sets"] == ex["sets"]  # only completed exercises are history
+
+
+def test_set_values_are_validated(client, auth):
+    body = {"exercise_id": 1, "sets": [{"weight_kg": -5, "reps": 10, "done": True}]}
+    assert client.post("/workout-log", json=body, headers=auth).status_code == 422
+    body = {"exercise_id": 1, "sets": [{"weight_kg": 10, "reps": 10, "done": True}] * 21}
+    assert client.post("/workout-log", json=body, headers=auth).status_code == 422
+
+
 def test_workout_log_toggle(client, auth):
     plan = client.get("/recommendations/workouts", headers=auth).json()
     ex = plan["sessions"][0]["exercises"][0]["exercise_id"]

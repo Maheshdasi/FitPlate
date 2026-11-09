@@ -241,6 +241,8 @@ class WorkoutLog(TimestampMixin, Base):
     day_number: Mapped[int | None] = mapped_column(Integer)
     sets_completed: Mapped[int] = mapped_column(Integer, default=0)
     completed: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Set-by-set log: [{"weight_kg": 40, "reps": 10, "seconds": null, "done": true}, ...]
+    sets: Mapped[list | None] = mapped_column(JSONB)
 
     exercise: Mapped[WorkoutExercise] = relationship()
 

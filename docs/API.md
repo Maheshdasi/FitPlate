@@ -226,12 +226,35 @@ workouts per week:
 
 ### `POST /workout-log` → 201
 
-`{ "exercise_id": 3, "completed": true, "sets_completed": 3, "day_number": 1, "log_date": "2026-10-20" }`
-One row per user, date and exercise (sending `completed: false` un-ticks it).
+```json
+{ "exercise_id": 7, "completed": false, "day_number": 1, "log_date": "2026-10-20",
+  "sets": [{ "weight_kg": 40, "reps": 12, "done": true }, { "weight_kg": 40, "reps": 11, "done": true },
+           { "weight_kg": null, "reps": null, "done": false }] }
+```
+
+One row per user, date and exercise; saving again replaces the sets. `sets` (up to 20) holds `weight_kg`, `reps`
+and `seconds` (holds and cardio). Without `sets`, `sets_completed` is stored as before. `completed: false` un-ticks
+the exercise.
+
+### `GET /workout-log/day?date=`
+
+What the set-by-set tracker needs for one day, per exercise in the plan:
+
+```json
+{ "logs": { "7": { "sets": [ ... ], "completed": false } },
+  "exercises": { "7": { "kind": "weighted",
+     "previous": { "date": "2026-10-17", "sets": [{ "weight_kg": 40, "reps": 12, "done": true }] },
+     "best": { "score": 56.0, "set": { "date": "2026-10-17", "weight_kg": 40, "reps": 12 } },
+     "suggestion": { "weight_kg": 42.5, "reps": 8, "text": "You hit 12 reps on every set at 40 kg. Go up to 42.5 kg ..." },
+     "records": [0] } },
+  "summary": { "volume_kg": 920, "sets_done": 2, "records": 1 } }
+```
+
+`kind` is `weighted`, `reps`, `timed` or `cardio`; `records` lists today's sets that are personal records.
 
 ### `GET /workout-log/history?days=30&date=`
 
-Completed exercises grouped by day, newest first.
+Completed exercises grouped by day, newest first, with the number of sets and the volume (kg × reps) per day.
 
 ---
 

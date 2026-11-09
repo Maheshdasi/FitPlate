@@ -48,7 +48,7 @@ sequenceDiagram
 flowchart LR
     A[Register] --> B[5-step profile] --> C[Calorie and macro targets]
     C --> D[Log food] --> E[Meal suggestions]
-    C --> F[Weekly workout plan] --> G[Tick off exercises]
+    C --> F[Weekly workout plan] --> G[Log sets, reps and weight]
     D --> H[Progress charts]
     G --> H
     H --> I[Weekly insights]
@@ -174,4 +174,4 @@ guard every range and allowed value. Full DDL: [database/schema.sql](../database
 | `backend/app/services` | Business logic shared by the endpoints |
 | `backend/app/models.py`, `schemas.py` | Database tables and input validation |
 | `ml/` | Formulas, rules and models, independent of the web code |
-| `backend/tests` | 98 automated tests (API, security and ML) |
+| `backend/tests` | 108 automated tests (API, security and ML) |

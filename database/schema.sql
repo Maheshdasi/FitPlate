@@ -248,6 +248,7 @@ CREATE TABLE workout_logs (
 	day_number INTEGER, 
 	sets_completed INTEGER NOT NULL, 
 	completed BOOLEAN NOT NULL, 
+	sets JSONB, 
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	PRIMARY KEY (id), 
 	CONSTRAINT uq_workoutlog_user_date_ex UNIQUE (user_id, log_date, exercise_id), 

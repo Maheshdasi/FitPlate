@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml"><img src="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <img src="https://img.shields.io/badge/tests-98%20passing-2F7A55" alt="98 tests passing">
+  <img src="https://img.shields.io/badge/tests-108%20passing-2F7A55" alt="108 tests passing">
   <img src="https://img.shields.io/badge/coverage-94%25-2F7A55" alt="94% coverage">
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
@@ -48,7 +48,7 @@ It is built around **everyday Indian meals** such as dal, roti, idli, paneer and
 | **Five ML techniques** | Content-based filtering, similarity ranking with MMR, linear regression, K-Means clustering and a text classifier |
 | **Weekly review in plain words** | "You stayed close to your calorie target on 5 out of 7 days", followed by practical suggestions |
 | **AI assistant** | Answers any question with a real AI model (Llama, Gemini or Claude) that sees the user's own data; works offline too |
-| **Tested and secure** | 98 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
+| **Tested and secure** | 108 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
 
 ## Contents
 
@@ -75,7 +75,7 @@ Popular food databases focus on packaged Western foods, and many "smart" apps ne
 flowchart LR
     A[Create account] --> B[5-step profile] --> C[Daily targets]
     C --> D[Log food] --> E[Meal suggestions]
-    C --> F[Weekly workout plan] --> G[Tick off exercises]
+    C --> F[Weekly workout plan] --> G[Log sets, reps and weight]
     D --> H[Progress charts]
     G --> H
     H --> I[Weekly insights]
@@ -92,7 +92,8 @@ flowchart LR
    preparation steps, a match score and the reasons each meal was chosen.
 5. **Workout plan** matched to the goal, level, equipment and free days, with sets, reps, rest and difficulty.
    Pick a training split (push pull legs, bro split, upper / lower, Arnold, full body) or build your own days.
-   Exercises are ticked off in the workout tracker.
+   The workout tracker logs every set (kg and reps, or time) like Hevy: last session's numbers are shown, the next
+   target is suggested by double progression, a rest timer starts after each set, and personal records are marked.
 6. **Progress** over 7 days, 30 days, 3 months or 6 months: weight with a forecast trend line, body measurements,
    calories and protein against goals, water and workout consistency.
 7. **Weekly insights** in plain sentences, practical suggestions and a habit pattern for the week.
@@ -230,7 +231,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 - All database access through the SQLAlchemy ORM, which prevents SQL injection; secrets kept in environment variables.
 
 **Quality**
-- **98 automated tests**: 60 API, security and integration tests, and 38 unit tests for the ML layer.
+- **108 automated tests**: 62 API, security and integration tests, and 46 unit tests for the ML layer.
 - **94% code coverage** of the backend and ML layer, linting with ruff, and a production build of the website.
 - All of this runs on [GitHub Actions](https://github.com/Maheshdasi/FitPlate/actions) on every update.
 
@@ -249,7 +250,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 ```
 FitPlate/
 ├── frontend/      React website: 14 pages, charts and the API client
-├── backend/       FastAPI app: routes, models, validation, security and 98 tests
+├── backend/       FastAPI app: routes, models, validation, security and 108 tests
 ├── ml/            Formulas, rules, ML models and the evaluation script
 ├── database/      PostgreSQL schema and the food, meal and exercise datasets
 ├── docs/          Project report, architecture, algorithms, API reference, setup guide

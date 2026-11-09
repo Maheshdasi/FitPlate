@@ -148,7 +148,8 @@ def replace_meal(db: Session, user: User, d: date, meal_type: str) -> dict | Non
 # ---------------------------------------------------------------- workouts
 def _plan_matches(plan: WorkoutPlan, p: UserProfile) -> bool:
     meta = plan.plan.get("profile", {})
-    return (plan.days_per_week == p.workout_days_per_week and plan.level == p.workout_level
+    days = len(p.custom_split) if p.workout_split == "custom" and p.custom_split else p.workout_days_per_week
+    return (plan.days_per_week == days and plan.level == p.workout_level
             and plan.goal == p.fitness_goal
             and meta.get("preferred_workout_type") == p.preferred_workout_type
             and meta.get("workout_split", "auto") == (p.workout_split or "auto")
