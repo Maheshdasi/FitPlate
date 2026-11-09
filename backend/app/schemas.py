@@ -273,8 +273,14 @@ class ChatContext(BaseModel):
         return [t.strip().lower()[:40] for t in v if t.strip()]
 
 
+class ChatTurn(BaseModel):
+    role: Literal["user", "assistant"]
+    text: str = Field(min_length=1, max_length=4000)
+
+
 class ChatIn(BaseModel):
-    message: str = Field(min_length=1, max_length=500)
+    message: str = Field(min_length=1, max_length=1000)
     context: ChatContext | None = None
+    history: list[ChatTurn] = Field(default=[], max_length=30)  # earlier messages, for the LLM
     local_date: date | None = None
     local_hour: int | None = Field(default=None, ge=0, le=23)

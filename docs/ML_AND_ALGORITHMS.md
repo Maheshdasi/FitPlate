@@ -19,6 +19,7 @@ The UI labels each one too (for example the "Formula-based" chip on the calculat
 | Assistant intent | **ML** | TF-IDF (char n-grams) + logistic regression | `ml/chat_assistant.py` |
 | Assistant answer | **Rule / template** | Filled with the user's own data | `ml/chat_assistant.py` |
 | Medical-question guard | **Rule** | Keyword pattern, checked first | `ml/chat_assistant.py` |
+| Open questions (optional) | **LLM** | Llama / Gemini / Claude with the user's data in the prompt | `backend/app/services/llm.py` |
 
 ---
 
@@ -131,5 +132,20 @@ No rule makes medical claims.
 4. **Answer**: templates filled with the user's targets, today's totals, the meal recommender, the food
    database (highest protein per calorie within the budget), today's workout session and the regression trend.
 
-It runs fully offline, so the demo works without an external API key. Connecting a large language model is
-listed under future scope.
+### Large language model mode
+
+When an API key is set in `backend/.env` (`GROQ_API_KEY`, `GEMINI_API_KEY` or `ANTHROPIC_API_KEY`), chat messages are
+answered by a hosted large language model instead (`backend/app/services/llm.py`):
+
+1. A narrower safety rule still runs first: requests for medicines, doses, prescriptions or a diagnosis are declined
+   and never sent to the model.
+2. A system prompt sets the assistant's role, style and safety limits (general information only for health
+   conditions, no crash diets, always respect allergies and diet type).
+3. The prompt carries the user's data as JSON: profile, daily targets, what was eaten and what is left today, the food
+   log, water, today's workout and weekly plan, weight trend and the top 5 meals the content-based recommender picks for
+   the next meal. So "what should I eat for dinner?" is answered from the same ML recommendations the app shows.
+4. The last 12 messages are sent too, so follow-ups ("I don't have peanut butter", "how much should I take?") work.
+5. Gemini is allowed to search Google, and its web sources are shown under the answer.
+6. If the service fails or times out, the offline assistant above answers, so the feature never breaks.
+
+Without a key, everything runs fully offline.

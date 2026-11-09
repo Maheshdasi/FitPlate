@@ -53,3 +53,10 @@ def make_user(client, profile=None):
 @pytest.fixture
 def auth(client):
     return make_user(client)
+
+
+@pytest.fixture(autouse=True)
+def offline_assistant_by_default(monkeypatch):
+    """Tests never call a real LLM, even if a key is set in backend/.env."""
+    for key in ("GROQ_API_KEY", "GEMINI_API_KEY", "ANTHROPIC_API_KEY", "LLM_PROVIDER"):
+        monkeypatch.delenv(key, raising=False)

@@ -283,7 +283,17 @@ Up to 12 stored weeks.
 
 ## AI assistant
 
+### `GET /ai/status`
+
+Which engine answers chat messages: `{ "mode": "llm", "provider": "groq", "name": "Llama (Groq)",
+"model": "llama-3.3-70b-versatile" }`, or `{ "mode": "offline", "name": "Offline assistant" }` when no API key is set.
+
 ### `POST /ai/chat`
+
+With an LLM configured, also send the earlier messages in `history`
+(`[{ "role": "user" | "assistant", "text": "..." }]`, up to 30). The reply then has `"intent": "llm"`,
+`"source": "groq" | "gemini" | "anthropic"` and, for Gemini, web `sources` (`[{ "title", "url" }]`). If the
+service fails, the offline assistant answers with `"source": "offline"`.
 
 ```json
 { "message": "I have 500 calories remaining. What can I eat?", "local_date": "2026-10-20", "local_hour": 19 }

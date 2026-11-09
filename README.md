@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml"><img src="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <img src="https://img.shields.io/badge/tests-92%20passing-2F7A55" alt="92 tests passing">
+  <img src="https://img.shields.io/badge/tests-98%20passing-2F7A55" alt="98 tests passing">
   <img src="https://img.shields.io/badge/coverage-94%25-2F7A55" alt="94% coverage">
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
@@ -47,8 +47,8 @@ It is built around **everyday Indian meals** such as dal, roti, idli, paneer and
 | **Safe recommendations** | Diet type and allergies are enforced by rules before any ML ranking: **0 violations in 384 tested scenarios** |
 | **Five ML techniques** | Content-based filtering, similarity ranking with MMR, linear regression, K-Means clustering and a text classifier |
 | **Weekly review in plain words** | "You stayed close to your calorie target on 5 out of 7 days", followed by practical suggestions |
-| **Offline AI assistant** | Answers from the user's own data, tolerates typos, and declines medical questions |
-| **Tested and secure** | 92 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
+| **AI assistant** | Answers any question with a real AI model (Llama, Gemini or Claude) that sees the user's own data; works offline too |
+| **Tested and secure** | 98 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
 
 ## Contents
 
@@ -96,7 +96,8 @@ flowchart LR
 6. **Progress** over 7 days, 30 days, 3 months or 6 months: weight with a forecast trend line, body measurements,
    calories and protein against goals, water and workout consistency.
 7. **Weekly insights** in plain sentences, practical suggestions and a habit pattern for the week.
-8. **Fitness assistant** for questions such as "What should I eat for dinner?" or "I have 500 calories left, what can I eat?"
+8. **AI assistant** that answers anything, from "What should I eat for dinner?" to "Is creatine safe?" or a recipe,
+   using the user's targets, food log and workout plan. Add a free Groq or Gemini key; without one it works offline.
 
 ## Screenshots
 
@@ -191,10 +192,13 @@ similarity. Maximal Marginal Relevance then picks a varied session so the same m
   estimated date to reach the target weight.
 - **Weekly insights**: Pandas summarises the week, rules turn it into sentences and suggestions, and K-Means places the
   week into a habit pattern such as "Consistent achiever" or "Getting started".
-- **Assistant**: a safety rule first declines questions about medical conditions, medicines or injuries. A classifier then
-  works out what is being asked, and the answer is built from the user's targets, today's log, the meal recommender and
-  their workout plan. It remembers the conversation, so "I don't have peanut butter" or "something else" changes the
-  suggestion instead of repeating it. It runs fully offline with no paid API.
+- **Assistant**: with an API key (free from Groq or Google Gemini, or Claude), a large language model answers any question
+  like a search engine and AI assistant would. It is given the user's profile, targets, today's food log, workout plan,
+  weight trend and the app's own meal suggestions, plus the conversation so far, so answers are personal and follow-ups
+  work. Gemini can also search Google and show its sources. Questions asking for medicines, doses or a diagnosis are
+  declined by a safety rule before anything is sent. Without a key, or if the service is down, the offline assistant
+  answers instead: a classifier works out what is being asked and the answer is built from the same data. It remembers
+  the conversation too, so "I don't have peanut butter" or "something else" changes the suggestion.
 </details>
 
 Full details of every formula, rule and model: [docs/ML_AND_ALGORITHMS.md](docs/ML_AND_ALGORITHMS.md)
@@ -226,7 +230,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 - All database access through the SQLAlchemy ORM, which prevents SQL injection; secrets kept in environment variables.
 
 **Quality**
-- **92 automated tests**: 54 API, security and integration tests, and 38 unit tests for the ML layer.
+- **98 automated tests**: 60 API, security and integration tests, and 38 unit tests for the ML layer.
 - **94% code coverage** of the backend and ML layer, linting with ruff, and a production build of the website.
 - All of this runs on [GitHub Actions](https://github.com/Maheshdasi/FitPlate/actions) on every update.
 
@@ -245,7 +249,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 ```
 FitPlate/
 ├── frontend/      React website: 14 pages, charts and the API client
-├── backend/       FastAPI app: routes, models, validation, security and 92 tests
+├── backend/       FastAPI app: routes, models, validation, security and 98 tests
 ├── ml/            Formulas, rules, ML models and the evaluation script
 ├── database/      PostgreSQL schema and the food, meal and exercise datasets
 ├── docs/          Project report, architecture, algorithms, API reference, setup guide

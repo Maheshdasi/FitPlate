@@ -15,6 +15,11 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      # Optional AI assistant keys: paste one in the Render dashboard (Environment tab)
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
 
 databases:
   - name: fitplate-db

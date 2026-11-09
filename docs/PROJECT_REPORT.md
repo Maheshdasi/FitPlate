@@ -236,10 +236,10 @@ function recommend(user, slot, date):
 
 ### 12.1 Automated API and unit tests
 
-**Result: 92 of 92 passed, with 94% code coverage** of the backend and ML layer. The tests run automatically on
+**Result: 98 of 98 passed, with 94% code coverage** of the backend and ML layer. The tests run automatically on
 GitHub Actions on every update, together with a lint check (ruff) and the ML evaluation script.
 
-- `backend/tests/test_api.py`: 54 API and integration tests against a separate PostgreSQL database (table below,
+- `backend/tests/test_api.py`: 60 API and integration tests against a separate PostgreSQL database (table below,
   plus the dashboard, water logging, history endpoints, the what-if calculator and the production server).
 - `backend/tests/test_ml.py`: 38 unit tests for the ML layer (WHO BMI cut-offs, macro totals, diet hierarchy,
   calorie sharing between meals, ranking and portion limits, weekly splits for 2 to 6 days, varied sessions,
@@ -332,7 +332,8 @@ main user flow is in [`docs/assets/demo.gif`](assets/demo.gif):
 
 - Food values are rounded averages per serving; actual recipes and portions vary.
 - The behaviour model is trained mainly on synthetic data until real users accumulate.
-- The assistant understands a fixed set of intents rather than open conversation.
+- Without an AI API key, the assistant understands a fixed set of intents rather than open conversation. With a key,
+  answers depend on a third-party AI service and can occasionally be wrong.
 - Exercise form is described in text only.
 
 ## 15. Future scope
@@ -340,7 +341,7 @@ main user flow is in [`docs/assets/demo.gif`](assets/demo.gif):
 1. Barcode scanning and a larger food database (including the full Indian Food Composition Tables).
 2. Photo-based food recognition with a CNN to estimate dishes and portions.
 3. Collaborative filtering once enough users exist, blended with the content-based recommender.
-4. Optional large-language-model assistant with the same safety rules and the user's data as context.
+4. Let the AI assistant take actions, such as logging a meal or changing the split, after the user confirms.
 5. Wearable and phone step/heart-rate integration to refine activity level automatically.
 6. Exercise demonstration videos and progressive overload tracking (weights per set).
 7. Reminders and push notifications for meals, water and workouts.
