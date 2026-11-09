@@ -9,6 +9,13 @@ from app.services import llm
 
 
 class FakeProvider(BaseHTTPRequestHandler):
+    def do_GET(self):  # noqa: N802  (Groq's model list)
+        data = json.dumps({"data": [{"id": "whisper-large-v3"}, {"id": "openai/gpt-oss-120b"},
+                                    {"id": "llama-3.1-8b-instant"}]}).encode()
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(data)
+
     requests: list = []
     fail = False
     header_key_rejected = False   # like Google AQ. keys that only work as ?key=
@@ -20,7 +27,7 @@ class FakeProvider(BaseHTTPRequestHandler):
         status = None
         if FakeProvider.fail:
             status = 500
-        elif any(f"/models/{m}:" in self.path for m in FakeProvider.missing_models):
+        elif any(f"/models/{m}:" in self.path or body.get("model") == m for m in FakeProvider.missing_models):
             status = 404
         elif FakeProvider.header_key_rejected and "key=" not in self.path:
             status = 401
@@ -137,3 +144,13 @@ def test_normalise_and_clean():
             {"role": "user", "content": "b"}, {"role": "assistant", "content": " "}]
     assert llm.normalise(msgs) == [{"role": "user", "content": "a\n\nb"}]
     assert llm.clean("| a | b |\n|---|---|\nok \u2013 fine") == "ok to fine"
+
+
+def test_retired_groq_model_is_replaced_automatically(client, auth, fake_llm, monkeypatch):
+    monkeypatch.setenv("GROQ_API_KEY", "gsk_test")
+    fake_llm.missing_models = ("llama-3.3-70b-versatile",)
+    llm._groq_model_cache.clear()
+    r = client.post("/ai/chat", json={"message": "Can I work out today?"}, headers=auth).json()
+    assert r["source"] == "groq" and "dal and rice" in r["reply"]
+    assert fake_llm.requests[-1]["body"]["model"] == "openai/gpt-oss-120b"
+    assert llm.pick_groq_model(["whisper-large-v3", "some-new-chat-model"]) == "some-new-chat-model"

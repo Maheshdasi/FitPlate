@@ -29,6 +29,7 @@ PROVIDERS = {
     "anthropic": {"env": "ANTHROPIC_API_KEY", "model": "claude-haiku-4-5", "name": "Claude"},
 }
 TIMEOUT_S = 45
+USER_AGENT = "FitPlate/1.0 (+https://github.com/Maheshdasi/FitPlate)"
 
 
 class LLMError(Exception):
@@ -88,7 +89,7 @@ def _post(url: str, body: dict, headers: dict) -> dict:
     # with "403 error code: 1010" even when the key is fine.
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
                                  headers={"Content-Type": "application/json", "Accept": "application/json",
-                                          "User-Agent": "FitPlate/1.0 (+https://github.com/Maheshdasi/FitPlate)",
+                                          "User-Agent": USER_AGENT,
                                           **headers})
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:  # noqa: S310 (fixed https URLs)
@@ -101,12 +102,60 @@ def _post(url: str, body: dict, headers: dict) -> dict:
 
 
 # ---------------------------------------------------------------- providers
+# Preferred Groq chat models, best first. Groq retires models over time, so when the chosen one is gone the
+# backend asks Groq which models this key can use and picks the best available one.
+GROQ_PREFERRED = ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "moonshotai/kimi-k2-instruct",
+                  "meta-llama/llama-4-maverick-17b-128e-instruct", "qwen/qwen3-32b", "openai/gpt-oss-20b",
+                  "llama-3.1-8b-instant"]
+NOT_CHAT = ("whisper", "guard", "tts", "playai", "orpheus", "distil", "prompt", "safeguard", "compound")
+_groq_model_cache: dict[str, str] = {}
+
+
+def _get(url: str, headers: dict) -> dict:
+    req = urllib.request.Request(url, headers={"Accept": "application/json", "User-Agent": USER_AGENT, **headers})
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:  # noqa: S310 (fixed https URLs)
+            return json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        raise LLMError(f"{e.code}: {e.read().decode(errors='replace')[:300]}") from e
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+        raise LLMError(str(e)) from e
+
+
+def pick_groq_model(available: list[str]) -> str | None:
+    """The best chat model from the ones a key can use."""
+    for name in GROQ_PREFERRED:
+        if name in available:
+            return name
+    chat = [m for m in available if not any(w in m.lower() for w in NOT_CHAT)]
+    return max(chat, key=lambda m: ("70b" in m or "120b" in m, "llama" in m, m)) if chat else None
+
+
 def _groq(key, model, system, messages):
-    url = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1") + "/chat/completions"
-    data = _post(url, {"model": model, "temperature": 0.5, "max_tokens": 900,
-                       "messages": [{"role": "system", "content": system}, *messages]},
-                 {"Authorization": f"Bearer {key}"})
-    return data["choices"][0]["message"]["content"], []
+    base = os.getenv("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
+    headers = {"Authorization": f"Bearer {key}"}
+    model = _groq_model_cache.get(key, model)
+
+    def call(name):
+        data = _post(base + "/chat/completions", {"model": name, "temperature": 0.5, "max_tokens": 900,
+                                                  "messages": [{"role": "system", "content": system}, *messages]},
+                     headers)
+        return data["choices"][0]["message"]["content"], []
+
+    try:
+        return call(model)
+    except LLMError as e:
+        text = str(e)
+        if not (text.startswith("404") or "model_not_found" in text or "decommissioned" in text
+                or "does not exist" in text):
+            raise
+        available = [m["id"] for m in _get(base + "/models", headers).get("data", []) if m.get("active", True)]
+        better = pick_groq_model([m for m in available if m != model])
+        if not better:
+            raise
+        logger.info("Groq model %s is not available, using %s", model, better)
+        _groq_model_cache[key] = better
+        return call(better)
 
 
 GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
