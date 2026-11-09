@@ -139,6 +139,13 @@ class CalculatorIn(BaseModel):
 
 
 # ---------- Food ----------
+class UnitOut(BaseModel):
+    key: str
+    label: str
+    grams: float
+    step: float
+
+
 class FoodOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -153,12 +160,17 @@ class FoodOut(BaseModel):
     fiber: float
     diet_type: str
     allergens: list[str]
+    units: list[UnitOut] = []
 
 
 class FoodLogIn(BaseModel):
+    """Log a food either as a number of servings (quantity) or as an amount in a unit (amount + unit),
+    for example {"amount": 2, "unit": "katori"} or {"amount": 150, "unit": "g"}."""
     food_item_id: int | None = None
     meal_id: int | None = None
-    quantity: float = Field(gt=0, le=20)
+    quantity: float | None = Field(default=None, gt=0, le=20)
+    amount: float | None = Field(default=None, gt=0, le=5000)
+    unit: str | None = Field(default=None, max_length=20, pattern=r"^[a-z]+$")
     meal_type: MealType
     log_date: date | None = None
 
@@ -166,6 +178,13 @@ class FoodLogIn(BaseModel):
     def exactly_one_source(self):
         if (self.food_item_id is None) == (self.meal_id is None):
             raise ValueError("Provide either food_item_id or meal_id")
+        if self.unit is not None or self.amount is not None:
+            if self.unit is None or self.amount is None:
+                raise ValueError("Provide both amount and unit")
+            if self.meal_id is not None and self.unit != "serving":
+                raise ValueError("Recipes can only be logged in servings")
+        elif self.quantity is None:
+            raise ValueError("Provide a quantity, or an amount and a unit")
         return self
 
 
@@ -178,6 +197,7 @@ class FoodLogOut(BaseModel):
     serving_desc: str
     meal_type: str
     quantity: float
+    amount_text: str | None = None
     log_date: date
     calories: float
     protein: float

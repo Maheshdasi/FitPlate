@@ -154,7 +154,8 @@ class FoodLog(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String(150))
     serving_desc: Mapped[str] = mapped_column(String(60))
     meal_type: Mapped[str] = mapped_column(String(20))
-    quantity: Mapped[float] = mapped_column(Float)
+    quantity: Mapped[float] = mapped_column(Float)  # number of servings
+    amount_text: Mapped[str | None] = mapped_column(String(60))  # what the user entered, e.g. "2 katori"
     log_date: Mapped[date] = mapped_column(Date)
     # Nutrient snapshot at logging time so history stays correct if the catalogue changes
     calories: Mapped[float] = mapped_column(Float)

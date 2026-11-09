@@ -93,6 +93,7 @@ CREATE TABLE food_logs (
 	serving_desc VARCHAR(60) NOT NULL, 
 	meal_type VARCHAR(20) NOT NULL, 
 	quantity FLOAT NOT NULL, 
+	amount_text VARCHAR(60), 
 	log_date DATE NOT NULL, 
 	calories FLOAT NOT NULL, 
 	protein FLOAT NOT NULL, 

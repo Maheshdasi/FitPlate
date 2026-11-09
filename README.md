@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml"><img src="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <img src="https://img.shields.io/badge/tests-80%20passing-2F7A55" alt="80 tests passing">
+  <img src="https://img.shields.io/badge/tests-92%20passing-2F7A55" alt="92 tests passing">
   <img src="https://img.shields.io/badge/coverage-94%25-2F7A55" alt="94% coverage">
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
@@ -48,7 +48,7 @@ It is built around **everyday Indian meals** such as dal, roti, idli, paneer and
 | **Five ML techniques** | Content-based filtering, similarity ranking with MMR, linear regression, K-Means clustering and a text classifier |
 | **Weekly review in plain words** | "You stayed close to your calorie target on 5 out of 7 days", followed by practical suggestions |
 | **Offline AI assistant** | Answers from the user's own data, tolerates typos, and declines medical questions |
-| **Tested and secure** | 80 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
+| **Tested and secure** | 92 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
 
 ## Contents
 
@@ -86,7 +86,8 @@ flowchart LR
 1. **Profile**: age, gender, height, weight, target weight, activity level, goal, diet type (vegetarian, non-vegetarian,
    vegan, eggetarian), allergies, workout level, free days per week and where they train.
 2. **Daily targets**: BMI, BMR, TDEE, calories, protein, carbohydrates, fat and water, each step explained.
-3. **Food tracker**: search 79 foods, choose servings and meal type; totals, remaining amounts and charts update instantly.
+3. **Food tracker**: search 79 foods and log them in the unit you use: servings, grams, ounces, katori, cups,
+   ml, glasses, tablespoons, teaspoons or pieces, whichever suits the food. Totals and charts update instantly.
 4. **Meal suggestions** for breakfast, lunch, dinner and snacks, sized to what is left today, with ingredients,
    preparation steps, a match score and the reasons each meal was chosen.
 5. **Workout plan** matched to the goal, level, equipment and free days, with sets, reps, rest and difficulty.
@@ -225,7 +226,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 - All database access through the SQLAlchemy ORM, which prevents SQL injection; secrets kept in environment variables.
 
 **Quality**
-- **80 automated tests**: 42 API, security and integration tests, and 38 unit tests for the ML layer.
+- **92 automated tests**: 54 API, security and integration tests, and 38 unit tests for the ML layer.
 - **94% code coverage** of the backend and ML layer, linting with ruff, and a production build of the website.
 - All of this runs on [GitHub Actions](https://github.com/Maheshdasi/FitPlate/actions) on every update.
 
@@ -244,7 +245,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 ```
 FitPlate/
 ├── frontend/      React website: 14 pages, charts and the API client
-├── backend/       FastAPI app: routes, models, validation, security and 80 tests
+├── backend/       FastAPI app: routes, models, validation, security and 92 tests
 ├── ml/            Formulas, rules, ML models and the evaluation script
 ├── database/      PostgreSQL schema and the food, meal and exercise datasets
 ├── docs/          Project report, architecture, algorithms, API reference, setup guide

@@ -24,6 +24,7 @@ def get_db():
 UPGRADES = [
     "ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS workout_split VARCHAR(20) NOT NULL DEFAULT 'auto'",
     "ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS custom_split JSONB",
+    "ALTER TABLE food_logs ADD COLUMN IF NOT EXISTS amount_text VARCHAR(60)",
 ]
 
 

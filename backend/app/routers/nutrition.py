@@ -8,9 +8,10 @@ from ml.calculations import calculate_targets
 
 from ..database import get_db
 from ..models import FoodItem, FoodLog, Meal, User, UserProfile
-from ..schemas import CalculatorIn, FoodLogIn, FoodLogOut, FoodOut
+from ..schemas import CalculatorIn, FoodLogIn, FoodLogOut, FoodOut, UnitOut
 from ..security import get_current_profile, get_current_user
 from ..services.nutrition import DISCLAIMER, MEAL_TYPES, day_totals, profile_targets, remaining
+from ..services.units import amount_text, unit_by_key, units_for
 from .common import resolve_date
 
 router = APIRouter(tags=["Nutrition"])
@@ -30,7 +31,13 @@ def list_foods(
         q = q.where(FoodItem.name.ilike(f"%{search.strip()}%"))  # bound parameter, safe from injection
     if category:
         q = q.where(FoodItem.category == category)
-    return db.scalars(q.order_by(FoodItem.category, FoodItem.name).limit(limit)).all()
+    foods = db.scalars(q.order_by(FoodItem.category, FoodItem.name).limit(limit)).all()
+    out = []
+    for f in foods:
+        food = FoodOut.model_validate(f)
+        food.units = [UnitOut(**u) for u in units_for(f.name, f.serving_desc, f.serving_g)]
+        out.append(food)
+    return out
 
 
 @router.get("/foods/categories", response_model=list[str])
@@ -45,11 +52,23 @@ def add_food_log(data: FoodLogIn, user: User = Depends(get_current_user),
     source = db.get(FoodItem, data.food_item_id) if data.food_item_id else db.get(Meal, data.meal_id)
     if source is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Food not found.")
-    q = data.quantity
+    q, text = data.quantity, None
+    if data.unit is not None:
+        serving_g = getattr(source, "serving_g", None)
+        unit = unit_by_key(source.name, source.serving_desc, serving_g, data.unit) if serving_g else None
+        if data.meal_id is not None:
+            unit = {"key": "serving", "label": "serving: recipe portion", "grams": 1}
+            serving_g = 1
+        if unit is None:
+            raise HTTPException(422, f"{source.name} can't be measured in {data.unit}.")
+        q = round(data.amount * unit["grams"] / serving_g, 3)
+        if not 0 < q <= 20:
+            raise HTTPException(422, "That amount is more than 20 servings. Please log a smaller amount.")
+        text = amount_text(data.amount, unit)
     log = FoodLog(
         user_id=user.id, food_item_id=data.food_item_id, meal_id=data.meal_id, name=source.name,
         serving_desc=getattr(source, "serving_desc", "1 serving"), meal_type=data.meal_type,
-        quantity=q, log_date=resolve_date(data.log_date),
+        quantity=q, amount_text=text, log_date=resolve_date(data.log_date),
         calories=round(source.calories * q, 1), protein=round(source.protein * q, 1),
         carbs=round(source.carbs * q, 1), fat=round(source.fat * q, 1),
     )

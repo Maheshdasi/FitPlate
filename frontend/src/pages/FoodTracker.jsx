@@ -13,25 +13,51 @@ function defaultMealType() {
   return h < 11 ? 'breakfast' : h < 15 ? 'lunch' : h < 18 ? 'snacks' : 'dinner'
 }
 
+const FALLBACK_UNITS = (food) => [
+  { key: 'serving', label: `serving: ${food.serving_desc}`, grams: food.serving_g, step: 0.25 },
+  { key: 'g', label: 'g', grams: 1, step: 5 },
+]
+
+/** A sensible starting amount for a unit: about one serving's worth. */
+function defaultAmount(unit, food) {
+  if (unit.key === 'serving') return '1'
+  const n = food.serving_g / unit.grams
+  if (unit.key === 'g' || unit.key === 'ml') return String(n > 100 ? Math.round(n / 25) * 25 : Math.round(n / 5) * 5 || 5)
+  if (unit.key === 'oz') return String(Math.round(n * 2) / 2 || 0.5)
+  return String(Math.max(1, Math.round(n * 4) / 4))
+}
+
 function AddFoodForm({ food, date, onAdded, onCancel }) {
-  const [quantity, setQuantity] = useState('1')
+  const units = food.units?.length ? food.units : FALLBACK_UNITS(food)
+  const [unitKey, setUnitKey] = useState(units[0].key)
+  const unit = units.find((u) => u.key === unitKey) || units[0]
+  const [amount, setAmount] = useState('1')
   const [mealType, setMealType] = useState(defaultMealType())
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const q = Number(quantity)
-  const valid = q > 0 && q <= 20
+  const a = Number(amount)
+  const q = a * unit.grams / food.serving_g  // servings
+  const valid = a > 0 && q > 0 && q <= 20
+
+  const changeUnit = (key) => {
+    const next = units.find((u) => u.key === key)
+    setUnitKey(key)
+    setAmount(defaultAmount(next, food))
+    setError('')
+  }
 
   const add = async (e) => {
     e.preventDefault()
-    if (!valid) return setError('Quantity must be between 0.25 and 20 servings.')
+    if (!valid) return setError(a > 0 ? 'That is more than 20 servings. Please enter a smaller amount.' : 'Enter an amount above 0.')
     setBusy(true)
     setError('')
     try {
-      await post('/food-log', { food_item_id: food.id, quantity: q, meal_type: mealType, log_date: date })
+      await post('/food-log', { food_item_id: food.id, amount: a, unit: unit.key, meal_type: mealType, log_date: date })
       onAdded(`${food.name} added to ${MEAL_LABELS[mealType].toLowerCase()}.`)
     } catch (err) { setError(err.message) } finally { setBusy(false) }
   }
 
+  const grams = Math.round(a * unit.grams)
   return (
     <form onSubmit={add} className="rounded-lg border border-brand-200 bg-brand-50/60 p-4" noValidate>
       <div className="flex items-start justify-between gap-2">
@@ -41,20 +67,35 @@ function AddFoodForm({ food, date, onAdded, onCancel }) {
         </div>
         <button type="button" onClick={onCancel} className="rounded p-1 text-muted hover:bg-black/5" aria-label="Cancel"><X size={18} /></button>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-3">
+      <div className="mt-3 grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3">
         <div>
-          <label className="label" htmlFor="qty">Servings</label>
-          <input id="qty" type="number" min="0.25" max="20" step="0.25" className={`input ${!valid ? 'input-error' : ''}`}
-            value={quantity} onChange={(e) => setQuantity(e.target.value)} />
+          <label className="label" htmlFor="qty">Amount</label>
+          <input id="qty" type="number" inputMode="decimal" min="0" step={unit.step} className={`input ${!valid ? 'input-error' : ''}`}
+            value={amount} onChange={(e) => setAmount(e.target.value)} />
         </div>
         <div>
-          <label className="label" htmlFor="meal">Meal</label>
-          <select id="meal" className="input" value={mealType} onChange={(e) => setMealType(e.target.value)}>
-            {MEAL_TYPES.map((m) => <option key={m} value={m}>{MEAL_LABELS[m]}</option>)}
+          <label className="label" htmlFor="unit">Unit</label>
+          <select id="unit" className="input" value={unit.key} onChange={(e) => changeUnit(e.target.value)}>
+            {units.map((u) => <option key={u.key} value={u.key}>{u.label}</option>)}
           </select>
         </div>
       </div>
-      {valid && <div className="mt-3"><MacroRow calories={food.calories * q} protein={food.protein * q} carbs={food.carbs * q} fat={food.fat * q} /></div>}
+      <div className="mt-3">
+        <label className="label" htmlFor="meal">Meal</label>
+        <select id="meal" className="input" value={mealType} onChange={(e) => setMealType(e.target.value)}>
+          {MEAL_TYPES.map((m) => <option key={m} value={m}>{MEAL_LABELS[m]}</option>)}
+        </select>
+      </div>
+      {valid && (
+        <div className="mt-3">
+          {unit.key !== 'serving' && (
+            <p className="num mb-1 text-xs text-muted">
+              {unit.key === 'g' ? '' : `About ${grams} g, which is `}{Math.round(q * 100) / 100} {q === 1 ? 'serving' : 'servings'}
+            </p>
+          )}
+          <MacroRow calories={food.calories * q} protein={food.protein * q} carbs={food.carbs * q} fat={food.fat * q} />
+        </div>
+      )}
       <ErrorNote message={error} />
       <button className="btn-primary mt-3 w-full" disabled={busy}><Plus size={16} aria-hidden />{busy ? 'Adding…' : 'Add to log'}</button>
     </form>
@@ -201,7 +242,7 @@ export default function FoodTracker() {
                           <li key={e.id} className="flex items-center gap-3 py-2.5">
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-sm font-semibold">{e.name}</p>
-                              <p className="text-xs text-muted">{e.quantity} × {e.serving_desc}</p>
+                              <p className="text-xs text-muted">{e.amount_text || `${e.quantity} × ${e.serving_desc}`}</p>
                               <div className="mt-0.5"><MacroRow {...e} compact /></div>
                             </div>
                             <button onClick={() => remove(e.id)} className="rounded-lg p-2 text-muted hover:bg-red-50 hover:text-red-600"
@@ -218,7 +259,7 @@ export default function FoodTracker() {
                   Search for a food on the left, or add a suggested meal from the meal plan.
                 </EmptyState>
               )}
-              <Disclaimer>Nutrition values are average estimates per serving. Actual values vary with recipe and portion size.</Disclaimer>
+              <Disclaimer>Nutrition values are average estimates. Household units (katori, cup, tbsp) are converted to grams using typical sizes, so actual values vary with recipe and portion size.</Disclaimer>
             </>
           )}
         </div>

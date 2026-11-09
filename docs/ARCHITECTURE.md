@@ -174,4 +174,4 @@ guard every range and allowed value. Full DDL: [database/schema.sql](../database
 | `backend/app/services` | Business logic shared by the endpoints |
 | `backend/app/models.py`, `schemas.py` | Database tables and input validation |
 | `ml/` | Formulas, rules and models, independent of the web code |
-| `backend/tests` | 80 automated tests (API, security and ML) |
+| `backend/tests` | 92 automated tests (API, security and ML) |

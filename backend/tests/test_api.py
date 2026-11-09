@@ -97,6 +97,52 @@ def test_food_log_rejects_bad_quantity(client, auth):
     assert r.status_code == 422
 
 
+def _food(client, auth, name):
+    return next(f for f in client.get("/foods", params={"search": name}, headers=auth).json() if f["name"] == name)
+
+
+def test_foods_offer_units_that_suit_them(client, auth):
+    keys = lambda name: [u["key"] for u in _food(client, auth, name)["units"]]  # noqa: E731
+    milk = keys("Toned milk")
+    assert milk[:2] == ["serving", "ml"] and {"glass", "tbsp", "tsp", "g", "oz"} <= set(milk)
+    assert {"katori", "cup", "g", "oz"} <= set(keys("Moong dal")) and "ml" not in keys("Moong dal")
+    assert {"tbsp", "tsp"} <= set(keys("Peanut butter")) and "katori" not in keys("Peanut butter")
+    assert "piece" in keys("Idli")
+    assert keys("Banana") == ["serving", "g", "oz"]
+
+
+@pytest.mark.parametrize("name, amount, unit, servings, text", [
+    ("Moong dal", 2, "katori", 2 * 150 * 230 / 240 / 150, "2 katori (150 ml)"),
+    ("Paneer", 150, "g", 1.5, "150 g"),
+    ("Toned milk", 500, "ml", 500 * 1.03 / 250, "500 ml"),
+    ("Toned milk", 2, "glass", 2 * 250 * 1.03 / 250, "2 glasses (250 ml)"),
+    ("Peanut butter", 2, "tbsp", 2.0, "2 tbsp"),
+    ("Idli", 3, "piece", 1.5, "3 pieces"),
+    ("Banana", 1.5, "serving", 1.5, "1.5 × 1 medium"),
+])
+def test_log_food_in_any_unit(client, auth, name, amount, unit, servings, text):
+    food = _food(client, auth, name)
+    r = client.post("/food-log", json={"food_item_id": food["id"], "amount": amount, "unit": unit,
+                                       "meal_type": "snacks"}, headers=auth)
+    assert r.status_code == 201, r.text
+    entry = r.json()
+    assert entry["quantity"] == pytest.approx(servings, abs=0.01)
+    assert entry["calories"] == pytest.approx(food["calories"] * servings, abs=0.2)
+    assert entry["amount_text"] == text
+
+
+@pytest.mark.parametrize("body, status", [
+    ({"amount": 2, "unit": "katori"}, 422),      # peanut butter isn't measured in katori
+    ({"amount": 2000, "unit": "tbsp"}, 422),     # more than 20 servings
+    ({"amount": 2}, 422),                        # unit missing
+    ({"amount": 2, "unit": "TBSP; drop"}, 422),  # not a unit name
+])
+def test_bad_units_are_rejected(client, auth, body, status):
+    food = _food(client, auth, "Peanut butter")
+    r = client.post("/food-log", json={"food_item_id": food["id"], "meal_type": "snacks", **body}, headers=auth)
+    assert r.status_code == status
+
+
 def test_cannot_delete_other_users_log(client, auth):
     other = make_user(client)
     r = client.post("/food-log", json={"food_item_id": 1, "quantity": 1, "meal_type": "dinner"}, headers=other)

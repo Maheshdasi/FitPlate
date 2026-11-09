@@ -103,18 +103,28 @@ List of foods with nutrients **per serving**:
 ```json
 [{ "id": 26, "name": "Paneer", "category": "Dairy", "serving_desc": "100 g", "serving_g": 100,
    "calories": 265, "protein": 18, "carbs": 3.5, "fat": 20, "fiber": 0,
-   "diet_type": "vegetarian", "allergens": ["dairy"] }]
+   "diet_type": "vegetarian", "allergens": ["dairy"],
+   "units": [{ "key": "serving", "label": "serving: 100 g", "grams": 100, "step": 0.25 },
+             { "key": "cup", "label": "cup", "grams": 130, "step": 0.25 },
+             { "key": "g", "label": "g", "grams": 1, "step": 5 },
+             { "key": "oz", "label": "oz", "grams": 28.35, "step": 0.5 }] }]
 ```
+
+`units` lists the units that suit each food, with the weight of one unit in grams: every food has `serving`, `g`
+and `oz`; drinks add `ml`, `glass`, `cup`, `tbsp`, `tsp`; dal, curries and other bowl foods add `katori` (150 ml)
+and `cup`; spreads, seeds and oils add `tbsp` and `tsp`; foods like idli add `piece`.
 
 ### `GET /foods/categories`
 
 ### `POST /food-log` → 201
 
 ```json
-{ "food_item_id": 26, "quantity": 1.5, "meal_type": "lunch", "log_date": "2026-10-20" }
+{ "food_item_id": 15, "amount": 2, "unit": "katori", "meal_type": "lunch", "log_date": "2026-10-20" }
 ```
 
-Exactly one of `food_item_id` / `meal_id`. `quantity` is servings (0 < q ≤ 20).
+Exactly one of `food_item_id` / `meal_id`. Send either `amount` + `unit` (any unit from the food's `units`) or
+`quantity` in servings. The amount is converted to servings (0 < servings ≤ 20) and the entry keeps what was typed
+in `amount_text`, for example `"2 katori (150 ml)"` or `"250 ml"`. A unit the food doesn't support returns `422`.
 `meal_type`: `breakfast`, `lunch`, `dinner`, `snacks`. Nutrients are stored as a snapshot.
 
 ### `GET /food-log/today?date=`
