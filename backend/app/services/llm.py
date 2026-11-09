@@ -20,6 +20,8 @@ import os
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
 
 logger = logging.getLogger("fitness.llm")
 
@@ -53,6 +55,23 @@ def configured() -> tuple[str, str, str] | None:
         if key:
             return p, key, os.getenv("LLM_MODEL", "").strip() or PROVIDERS[p]["model"]
     return None
+
+
+LOG_FILE = Path(__file__).resolve().parents[2] / "llm_errors.log"
+
+
+def log_failure(err: Exception) -> None:
+    """Keep the last few AI errors in backend/llm_errors.log for troubleshooting (never includes the key)."""
+    cfg = configured()
+    line = f"{datetime.now():%Y-%m-%d %H:%M:%S} provider={cfg[0] if cfg else None} model={cfg[2] if cfg else None} " \
+           f"cached_model={_groq_model_cache.get(cfg[1]) if cfg else None} error={str(err)[:600]!r}\n"
+    if cfg:
+        line = line.replace(cfg[1], "<key>")
+    try:
+        old = LOG_FILE.read_text(encoding="utf-8").splitlines(keepends=True)[-19:] if LOG_FILE.exists() else []
+        LOG_FILE.write_text("".join(old) + line, encoding="utf-8")
+    except OSError:
+        pass
 
 
 def short_reason(err: Exception) -> str:

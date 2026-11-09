@@ -74,6 +74,7 @@ def chat(data: ChatIn, user: User = Depends(get_current_user),
                     "sources": answer.sources, "quick_replies": QUICK_REPLIES, "context": {}}
         except llm.LLMError as e:
             logger.warning("LLM unavailable, using the offline assistant: %s", e)
+            llm.log_failure(e)
             llm_error = llm.short_reason(e)
 
     ctx = {
