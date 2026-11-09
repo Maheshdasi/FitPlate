@@ -104,7 +104,7 @@ export default function Assistant() {
       })
       setMessages((m) => [...m, {
         role: 'assistant', text: res.reply, intent: res.intent, source: res.source,
-        sourceName: res.source_name, links: res.sources || [],
+        sourceName: res.source_name, links: res.sources || [], llmError: res.llm_error,
       }])
       setContext(res.context || null)
       if (res.source === 'offline' && res.quick_replies) setQuick(res.quick_replies)
@@ -150,7 +150,9 @@ export default function Assistant() {
                 )}
                 {m.intent === 'medical_safety' && <p className="mt-2 text-xs font-semibold text-muted">Safety rule applied</p>}
                 {llmOn && m.source === 'offline' && (
-                  <p className="mt-2 text-xs text-muted">The AI service didn't respond, so the offline assistant answered.</p>
+                  <p className="mt-2 text-xs text-muted">
+                    The AI service didn't answer{m.llmError ? `: ${m.llmError}` : ''}. The offline assistant replied instead.
+                  </p>
                 )}
               </div>
             </div>

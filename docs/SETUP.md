@@ -22,7 +22,7 @@ The whole app (website, API and PostgreSQL database) runs inside GitHub Codespac
 3. When setup finishes, the terminal shows **FitPlate is running** and the app opens in a new browser tab. If it doesn't (for example, the browser blocked the pop-up), open the **PORTS** tab at the bottom and click the globe icon next to port **8000**. Keep that terminal open while you use the app.
 4. Log in with the demo account: **`demo@fitness.app`** / **`Demo@1234`** (4 months of sample history), or click "Get started" to create your own account.
 
-The API documentation (Swagger) is at `/api/docs` on the same address. Every push also runs the 108 automated tests on GitHub Actions; see the **Tests** badge in the README.
+The API documentation (Swagger) is at `/api/docs` on the same address. Every push also runs the 110 automated tests on GitHub Actions; see the **Tests** badge in the README.
 
 ## On Windows (easiest)
 
@@ -32,7 +32,7 @@ The API documentation (Swagger) is at `/api/docs` on the same address. Every pus
 4. Log in with `demo@fitness.app` / `Demo@1234`.
 
 Other scripts: **`scripts\windows\refresh-demo-data.bat`** (run on the morning of a demo so the sample history ends today)
-and **`scripts\windows\run-tests.bat`** (runs the 108 automated tests).
+and **`scripts\windows\run-tests.bat`** (runs the 110 automated tests).
 
 The manual steps below do the same thing by hand, and work on macOS and Linux too.
 

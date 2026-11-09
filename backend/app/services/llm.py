@@ -28,7 +28,7 @@ PROVIDERS = {
     "gemini": {"env": "GEMINI_API_KEY", "model": "gemini-flash-latest", "name": "Gemini"},
     "anthropic": {"env": "ANTHROPIC_API_KEY", "model": "claude-haiku-4-5", "name": "Claude"},
 }
-TIMEOUT_S = 30
+TIMEOUT_S = 45
 
 
 class LLMError(Exception):
@@ -52,6 +52,27 @@ def configured() -> tuple[str, str, str] | None:
         if key:
             return p, key, os.getenv("LLM_MODEL", "").strip() or PROVIDERS[p]["model"]
     return None
+
+
+def short_reason(err: Exception) -> str:
+    """A one-line, key-free explanation of why the AI call failed, shown under the fallback answer."""
+    text = str(err)
+    code = text[:3]
+    if code in ("401", "403"):
+        return "the API key was rejected (check it in backend/.env, or try a Groq key)"
+    if code == "429":
+        return "the free quota is used up for now (try again later)"
+    if code == "404":
+        return "that AI model isn't available for this key"
+    if code.startswith("5"):
+        return "the AI service had an error"
+    if "No LLM" in text:
+        return "no AI key is set"
+    if "timed out" in text or "timeout" in text.lower():
+        return "the AI service took too long to answer"
+    if "Errno" in text or "urlopen" in text or "Name or service" in text:
+        return "the backend couldn't reach the internet"
+    return "the AI service gave an unexpected answer"
 
 
 def provider_name(provider: str) -> str:
@@ -80,23 +101,46 @@ def _groq(key, model, system, messages):
     return data["choices"][0]["message"]["content"], []
 
 
+GEMINI_FALLBACK_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"]
+
+
 def _gemini(key, model, system, messages):
+    """Gemini, with Google Search when allowed. Falls back to other model names and the other way of sending the key,
+    so a model that was renamed or a key type that only works one way still gets an answer."""
     base = os.getenv("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
-    url = f"{base}/models/{model}:generateContent"
     contents = [{"role": "model" if m["role"] == "assistant" else "user", "parts": [{"text": m["content"]}]}
                 for m in messages]
     body = {"systemInstruction": {"parts": [{"text": system}]}, "contents": contents,
-            "generationConfig": {"temperature": 0.5, "maxOutputTokens": 1200}}
-    headers = {"x-goog-api-key": key}
-    try:
-        # Let Gemini search Google for current facts; retry without it if the model or plan doesn't allow it
-        data = _post(url, {**body, "tools": [{"google_search": {}}]}, headers)
-    except LLMError as e:
-        if not str(e).startswith(("400", "403", "429")):
-            raise
-        data = _post(url, body, headers)
-    cand = data["candidates"][0]
-    text = "".join(p.get("text", "") for p in cand.get("content", {}).get("parts", []))
+            "generationConfig": {"temperature": 0.5, "maxOutputTokens": 4096}}
+    auth_ways = [({"x-goog-api-key": key}, ""), ({}, f"?key={key}")]
+    last: LLMError | None = None
+    for name in dict.fromkeys([model, *GEMINI_FALLBACK_MODELS]):
+        for headers, query in auth_ways:
+            url = f"{base}/models/{name}:generateContent{query}"
+            for with_search in (True, False):
+                try:
+                    data = _post(url, {**body, "tools": [{"google_search": {}}]} if with_search else body, headers)
+                    text, sources = _gemini_parse(data)
+                    if text.strip():
+                        return text, sources
+                    last = LLMError(f"empty answer from {name}")
+                except LLMError as e:
+                    last = e
+                    code = str(e)[:3]
+                    if code in ("401", "403") and not with_search:
+                        break           # key rejected this way: try the other way of sending it
+                    if code == "404":
+                        break           # unknown model: try the next model name
+                    if code not in ("400", "401", "403", "429") and not code.startswith("5"):
+                        raise           # network problem: no point retrying here
+            if last and str(last)[:3] == "404":
+                break
+    raise last or LLMError("Gemini gave no answer")
+
+
+def _gemini_parse(data):
+    cand = (data.get("candidates") or [{}])[0]
+    text = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", []) if not p.get("thought"))
     sources = []
     for chunk in (cand.get("groundingMetadata") or {}).get("groundingChunks", []) or []:
         web = chunk.get("web") or {}

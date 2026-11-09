@@ -60,6 +60,7 @@ def chat(data: ChatIn, user: User = Depends(get_current_user),
     hour = data.local_hour if data.local_hour is not None else datetime.now().hour
     prediction = prog.weight_prediction(db, user)
 
+    llm_error = None
     if llm.configured():
         if HARD_MEDICAL.search(data.message):
             return {"reply": SAFETY_REPLY, "intent": "medical_safety", "confidence": 1.0, "source": "safety",
@@ -73,6 +74,7 @@ def chat(data: ChatIn, user: User = Depends(get_current_user),
                     "sources": answer.sources, "quick_replies": QUICK_REPLIES, "context": {}}
         except llm.LLMError as e:
             logger.warning("LLM unavailable, using the offline assistant: %s", e)
+            llm_error = llm.short_reason(e)
 
     ctx = {
         "profile": recs.profile_dict(profile),
@@ -90,7 +92,10 @@ def chat(data: ChatIn, user: User = Depends(get_current_user),
         "prediction": prediction,
         "context": data.context.model_dump() if data.context else {},
     }
-    return {**assistant().reply(data.message, ctx), "source": "offline"}
+    out = {**assistant().reply(data.message, ctx), "source": "offline"}
+    if llm_error:
+        out["llm_error"] = llm_error
+    return out
 
 
 @router.get("/status")
