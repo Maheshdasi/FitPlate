@@ -58,8 +58,12 @@ def short_reason(err: Exception) -> str:
     """A one-line, key-free explanation of why the AI call failed, shown under the fallback answer."""
     text = str(err)
     code = text[:3]
-    if code in ("401", "403"):
-        return "the API key was rejected (check it in backend/.env, or try a Groq key)"
+    if code == "403" and "1010" in text:
+        return "the AI service blocked the request (error 1010)"
+    if code == "401" or (code == "403" and "key" in text.lower()):
+        return "the API key was rejected (check it in backend/.env)"
+    if code == "403":
+        return "the AI service refused the request (403); see the backend terminal for details"
     if code == "429":
         return "the free quota is used up for now (try again later)"
     if code == "404":
@@ -80,8 +84,12 @@ def provider_name(provider: str) -> str:
 
 
 def _post(url: str, body: dict, headers: dict) -> dict:
+    # A normal User-Agent: some providers (Groq, behind Cloudflare) refuse Python's default "Python-urllib"
+    # with "403 error code: 1010" even when the key is fine.
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
-                                 headers={"Content-Type": "application/json", **headers})
+                                 headers={"Content-Type": "application/json", "Accept": "application/json",
+                                          "User-Agent": "FitPlate/1.0 (+https://github.com/Maheshdasi/FitPlate)",
+                                          **headers})
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT_S) as r:  # noqa: S310 (fixed https URLs)
             return json.loads(r.read().decode())

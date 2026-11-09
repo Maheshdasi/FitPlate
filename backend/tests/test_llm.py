@@ -84,6 +84,7 @@ def test_llm_answers_with_the_users_data_and_history(client, auth, fake_llm, mon
 
     sent = fake_llm.requests[-1]
     assert sent["headers"]["Authorization"] == "Bearer test-key"
+    assert sent["headers"]["User-Agent"].startswith("FitPlate/")  # not "Python-urllib", which Groq blocks
     msgs = sent["body"]["messages"]
     assert msgs[0]["role"] == "system" and '"peanuts"' in msgs[0]["content"]  # allergies from the profile
     assert '"daily_calories"' in msgs[0]["content"] and "app_meal_suggestions_for_" in msgs[0]["content"]
