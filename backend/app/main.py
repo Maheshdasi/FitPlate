@@ -9,14 +9,14 @@ from sqlalchemy.exc import IntegrityError
 
 from . import models  # noqa: F401  (registers tables)
 from .config import settings
-from .database import Base, engine
+from .database import init_db
 from .routers import ai, auth, insights, nutrition, profile, progress, recommendations
 
 logger = logging.getLogger("fitness")
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    Base.metadata.create_all(bind=engine)
+    init_db()
     yield
 
 

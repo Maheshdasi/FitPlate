@@ -17,3 +17,21 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# Columns added after the first release. create_all() only creates missing tables, so existing
+# databases get these columns here (safe to run on every start).
+UPGRADES = [
+    "ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS workout_split VARCHAR(20) NOT NULL DEFAULT 'auto'",
+    "ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS custom_split JSONB",
+]
+
+
+def init_db():
+    """Create missing tables, then add any newer columns to existing tables."""
+    from sqlalchemy import text
+
+    Base.metadata.create_all(bind=engine)
+    with engine.begin() as conn:
+        for sql in UPGRADES:
+            conn.execute(text(sql))

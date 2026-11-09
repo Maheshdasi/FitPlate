@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 
+import pytest
 from conftest import PROFILE, make_user
 
 from ml.calculations import calculate_bmr, calculate_targets
@@ -152,6 +153,53 @@ def test_rebuild_plan_gives_a_different_plan_that_still_fits(client, auth):
     exercises = [e for s in rebuilt["sessions"] for e in s["exercises"]]
     assert all(e["difficulty"] != "advanced" for e in exercises)
     assert all(e["equipment"] in ("bodyweight", "dumbbell") for e in exercises)
+
+
+def test_choose_a_named_split(client, auth):
+    r = client.put("/recommendations/workouts/split",
+                   json={"workout_split": "push_pull_legs", "workout_days_per_week": 4}, headers=auth)
+    assert r.status_code == 200, r.text
+    plan = r.json()
+    assert plan["split"] == "push_pull_legs" and plan["days_per_week"] == 4
+    assert [s["title"].split()[0] for s in plan["sessions"]] == ["Push", "Pull", "Legs", "Push"]
+    # The choice is saved on the profile and survives a normal profile update
+    profile = client.get("/profile", headers=auth).json()
+    assert profile["workout_split"] == "push_pull_legs"
+    assert client.put("/profile", json={**profile, "age": 26}, headers=auth).status_code == 200
+    assert client.get("/recommendations/workouts", headers=auth).json()["split"] == "push_pull_legs"
+
+
+def test_bro_split_still_fills_days_with_home_equipment(client, auth):
+    plan = client.put("/recommendations/workouts/split",
+                      json={"workout_split": "bro_split", "workout_days_per_week": 5}, headers=auth).json()
+    assert [s["title"] for s in plan["sessions"]][0] == "Chest day"
+    for s in plan["sessions"]:
+        assert len(s["exercises"]) >= 4
+        assert all(e["equipment"] in ("bodyweight", "dumbbell") for e in s["exercises"])
+
+
+def test_custom_split(client, auth):
+    days = [{"name": "Chest and triceps", "groups": ["chest", "arms"]},
+            {"name": "Back and biceps", "groups": ["back", "arms"]},
+            {"name": "", "groups": ["legs", "core"]}]
+    plan = client.put("/recommendations/workouts/split",
+                      json={"workout_split": "custom", "custom_split": days}, headers=auth).json()
+    assert plan["split"] == "custom" and plan["days_per_week"] == 3
+    titles = [s["title"] for s in plan["sessions"]]
+    assert titles == ["Chest and triceps", "Back and biceps", "Legs, Core"]
+    first = {e["category"] for e in plan["sessions"][0]["exercises"]}
+    assert {"chest", "arms"} <= first
+
+
+@pytest.mark.parametrize("body", [
+    {"workout_split": "custom", "custom_split": [{"groups": ["chest"]}]},  # only one day
+    {"workout_split": "custom"},
+    {"workout_split": "custom", "custom_split": [{"groups": []}, {"groups": ["legs"]}]},
+    {"workout_split": "custom", "custom_split": [{"groups": ["wings"]}, {"groups": ["legs"]}]},
+    {"workout_split": "five_day_magic"},
+])
+def test_invalid_split_is_rejected(client, auth, body):
+    assert client.put("/recommendations/workouts/split", json=body, headers=auth).status_code == 422
 
 
 def test_workout_log_toggle(client, auth):

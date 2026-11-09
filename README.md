@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml"><img src="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <img src="https://img.shields.io/badge/tests-58%20passing-2F7A55" alt="58 tests passing">
+  <img src="https://img.shields.io/badge/tests-70%20passing-2F7A55" alt="70 tests passing">
   <img src="https://img.shields.io/badge/coverage-94%25-2F7A55" alt="94% coverage">
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
@@ -48,7 +48,7 @@ It is built around **everyday Indian meals** such as dal, roti, idli, paneer and
 | **Five ML techniques** | Content-based filtering, similarity ranking with MMR, linear regression, K-Means clustering and a text classifier |
 | **Weekly review in plain words** | "You stayed close to your calorie target on 5 out of 7 days", followed by practical suggestions |
 | **Offline AI assistant** | Answers from the user's own data, tolerates typos, and declines medical questions |
-| **Tested and secure** | 58 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
+| **Tested and secure** | 70 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
 
 ## Contents
 
@@ -90,6 +90,7 @@ flowchart LR
 4. **Meal suggestions** for breakfast, lunch, dinner and snacks, sized to what is left today, with ingredients,
    preparation steps, a match score and the reasons each meal was chosen.
 5. **Workout plan** matched to the goal, level, equipment and free days, with sets, reps, rest and difficulty.
+   Pick a training split (push pull legs, bro split, upper / lower, Arnold, full body) or build your own days.
    Exercises are ticked off in the workout tracker.
 6. **Progress** over 7 days, 30 days, 3 months or 6 months: weight with a forecast trend line, body measurements,
    calories and protein against goals, water and workout consistency.
@@ -174,7 +175,9 @@ The calculator page shows each of these steps with the user's own numbers and a 
 <details>
 <summary><b>Workout recommendations</b> (rules + similarity)</summary>
 
-The number of free days sets the weekly split (for example, 4 days gives upper and lower body sessions twice), and the
+The user picks a split (push pull legs, bro split, upper / lower, Arnold, full body, or their own custom days with the
+muscle groups they choose). On "Recommended", the number of free days sets the split (for example, 4 days gives upper
+and lower body sessions twice). The
 goal and level set sets, reps and rest. Each exercise is described by its features (difficulty, equipment, strength or
 cardio, compound movement, goals it suits); the user is described the same way, and exercises are ranked by cosine
 similarity. Maximal Marginal Relevance then picks a varied session so the same muscle isn't trained twice in a row.
@@ -221,7 +224,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 - All database access through the SQLAlchemy ORM, which prevents SQL injection; secrets kept in environment variables.
 
 **Quality**
-- **58 automated tests**: 33 API, security and integration tests, and 25 unit tests for the ML layer.
+- **70 automated tests**: 41 API, security and integration tests, and 29 unit tests for the ML layer.
 - **94% code coverage** of the backend and ML layer, linting with ruff, and a production build of the website.
 - All of this runs on [GitHub Actions](https://github.com/Maheshdasi/FitPlate/actions) on every update.
 
@@ -240,7 +243,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 ```
 FitPlate/
 ├── frontend/      React website: 14 pages, charts and the API client
-├── backend/       FastAPI app: routes, models, validation, security and 58 tests
+├── backend/       FastAPI app: routes, models, validation, security and 70 tests
 ├── ml/            Formulas, rules, ML models and the evaluation script
 ├── database/      PostgreSQL schema and the food, meal and exercise datasets
 ├── docs/          Project report, architecture, algorithms, API reference, setup guide

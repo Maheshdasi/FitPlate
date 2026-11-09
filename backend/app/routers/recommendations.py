@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import FoodLog, MealRecommendation, User, UserProfile, WorkoutExercise, WorkoutLog
-from ..schemas import LogMealIn, ReplaceMealIn, WorkoutLogIn
+from ..schemas import LogMealIn, ReplaceMealIn, SplitIn, WorkoutLogIn
 from ..security import get_current_profile, get_current_user
 from ..services import recommendations as recs
 from .common import resolve_date
@@ -56,21 +56,18 @@ def _completed_ids(db, user_id, d) -> set[int]:
         WorkoutLog.user_id == user_id, WorkoutLog.log_date == d, WorkoutLog.completed.is_(True))))
 
 
-@router.get("/recommendations/workouts")
-def workout_recommendations(date_: date | None = Query(default=None, alias="date"),
-                            regenerate: bool = False,
-                            user: User = Depends(get_current_user),
-                            _: UserProfile = Depends(get_current_profile), db: Session = Depends(get_db)):
-    d = resolve_date(date_)
-    plan = recs.active_plan(db, user, regenerate=regenerate)
+def _plan_response(db, user, plan, d: date) -> dict:
     today = recs.session_for_date(plan, d)
     done = _completed_ids(db, user.id, d)
+    meta = plan.plan.get("profile", {})
     return {
         "plan_id": plan.id,
         "created_at": plan.created_at.isoformat() if plan.created_at else None,
         "days_per_week": plan.days_per_week,
         "level": plan.level,
         "goal": plan.goal,
+        "split": meta.get("workout_split", "auto"),
+        "custom_split": meta.get("custom_split"),
         "schedule": [recs.WEEKDAYS[i] for i in plan.schedule],
         "sessions": plan.plan["sessions"],
         "method": plan.plan.get("method"),
@@ -78,6 +75,32 @@ def workout_recommendations(date_: date | None = Query(default=None, alias="date
                   "session": today, "is_rest_day": today is None,
                   "completed_exercise_ids": sorted(done)},
     }
+
+
+@router.get("/recommendations/workouts")
+def workout_recommendations(date_: date | None = Query(default=None, alias="date"),
+                            regenerate: bool = False,
+                            user: User = Depends(get_current_user),
+                            _: UserProfile = Depends(get_current_profile), db: Session = Depends(get_db)):
+    plan = recs.active_plan(db, user, regenerate=regenerate)
+    return _plan_response(db, user, plan, resolve_date(date_))
+
+
+@router.put("/recommendations/workouts/split")
+def set_workout_split(data: SplitIn, date_: date | None = Query(default=None, alias="date"),
+                      user: User = Depends(get_current_user),
+                      profile: UserProfile = Depends(get_current_profile), db: Session = Depends(get_db)):
+    """Choose a training split (or define your own days) and rebuild the plan around it."""
+    profile.workout_split = data.workout_split
+    profile.custom_split = [d.model_dump() for d in data.custom_split] if data.custom_split else None
+    if data.custom_split:
+        profile.workout_days_per_week = len(data.custom_split)
+    elif data.workout_days_per_week:
+        profile.workout_days_per_week = data.workout_days_per_week
+    db.commit()
+    db.refresh(user)
+    plan = recs.active_plan(db, user)
+    return _plan_response(db, user, plan, resolve_date(date_))
 
 
 @router.post("/workout-log", status_code=status.HTTP_201_CREATED)

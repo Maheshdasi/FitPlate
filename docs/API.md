@@ -179,6 +179,7 @@ so they stay stable for the day.
 
 ```json
 { "plan_id": 1, "days_per_week": 4, "level": "intermediate", "goal": "weight_loss",
+  "split": "auto", "custom_split": null,
   "schedule": ["Monday", "Tuesday", "Thursday", "Friday"],
   "sessions": [{ "day_number": 1, "weekday": 0, "weekday_name": "Monday", "title": "Upper body",
      "estimated_minutes": 50,
@@ -188,6 +189,30 @@ so they stay stable for the day.
   "today": { "date": "2026-10-20", "weekday": "Tuesday", "is_rest_day": false,
              "session": { ... }, "completed_exercise_ids": [] } }
 ```
+
+`regenerate=true` ("Rebuild plan") builds a fresh variation that avoids the previous plan's exercises.
+
+### `PUT /recommendations/workouts/split?date=`
+
+Choose a training split and rebuild the plan around it. Returns the same shape as `GET /recommendations/workouts`.
+
+```json
+{ "workout_split": "push_pull_legs", "workout_days_per_week": 6 }
+```
+
+`workout_split` is one of `auto`, `full_body`, `upper_lower`, `push_pull_legs`, `bro_split`, `arnold` or `custom`.
+For `custom`, send 2 to 6 days, each with an optional name and 1 to 4 muscle groups
+(`chest`, `back`, `shoulders`, `arms`, `legs`, `core`, `full_body`, `cardio`); the number of days becomes the
+workouts per week:
+
+```json
+{ "workout_split": "custom",
+  "custom_split": [{ "name": "Chest and triceps", "groups": ["chest", "arms"] },
+                   { "name": "Back and biceps", "groups": ["back", "arms"] },
+                   { "name": "Legs", "groups": ["legs", "core"] }] }
+```
+
+`422` for an unknown split, a custom split with fewer than 2 days, or a day without muscle groups.
 
 ### `POST /workout-log` → 201
 

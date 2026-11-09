@@ -27,6 +27,7 @@ LEVELS = ("beginner", "intermediate", "advanced")
 WORKOUT_TYPES = ("gym", "home", "bodyweight", "mixed", "cardio")
 MEAL_TYPES = ("breakfast", "lunch", "dinner", "snacks")
 CATEGORIES = ("chest", "back", "shoulders", "arms", "legs", "core", "full_body", "cardio")
+SPLITS = ("auto", "full_body", "upper_lower", "push_pull_legs", "bro_split", "arnold", "custom")
 
 
 def _in(column: str, values: tuple) -> str:
@@ -65,6 +66,7 @@ class UserProfile(TimestampMixin, Base):
         CheckConstraint(_in("dietary_preference", DIETS), name="ck_profile_diet"),
         CheckConstraint(_in("workout_level", LEVELS), name="ck_profile_level"),
         CheckConstraint(_in("preferred_workout_type", WORKOUT_TYPES), name="ck_profile_wtype"),
+        CheckConstraint(_in("workout_split", SPLITS), name="ck_profile_split"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -83,6 +85,9 @@ class UserProfile(TimestampMixin, Base):
     workout_level: Mapped[str] = mapped_column(String(20))
     workout_days_per_week: Mapped[int] = mapped_column(Integer, default=3)
     preferred_workout_type: Mapped[str] = mapped_column(String(20), default="mixed")
+    # Training split: "auto" lets the app choose; "custom" uses custom_split = [{name, groups}]
+    workout_split: Mapped[str] = mapped_column(String(20), default="auto", server_default="auto")
+    custom_split: Mapped[list | None] = mapped_column(JSONB)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(),
                                                  onupdate=func.now())
 

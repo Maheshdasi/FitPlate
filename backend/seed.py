@@ -16,7 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 from sqlalchemy import delete, select
 
 from app.config import SEED_DIR
-from app.database import Base, SessionLocal, engine
+from app.database import Base, SessionLocal, engine, init_db
 from app.models import (
     FoodItem,
     FoodLog,
@@ -166,7 +166,7 @@ def main():
     if "--reset" in sys.argv:
         Base.metadata.drop_all(bind=engine)
         print("Dropped all tables")
-    Base.metadata.create_all(bind=engine)
+    init_db()
     with SessionLocal() as db:
         load_catalogue(db)
         if "--no-demo" not in sys.argv:

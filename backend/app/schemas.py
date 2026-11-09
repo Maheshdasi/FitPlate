@@ -10,6 +10,8 @@ Goal = Literal["weight_loss", "weight_gain", "muscle_gain", "maintenance", "gene
 Diet = Literal["vegetarian", "non_vegetarian", "vegan", "eggetarian"]
 Level = Literal["beginner", "intermediate", "advanced"]
 WorkoutType = Literal["gym", "home", "bodyweight", "mixed", "cardio"]
+Split = Literal["auto", "full_body", "upper_lower", "push_pull_legs", "bro_split", "arnold", "custom"]
+MuscleGroup = Literal["chest", "back", "shoulders", "arms", "legs", "core", "full_body", "cardio"]
 MealType = Literal["breakfast", "lunch", "dinner", "snacks"]
 Allergen = Literal["dairy", "eggs", "gluten", "nuts", "peanuts", "soy", "fish", "shellfish", "sesame"]
 
@@ -41,7 +43,44 @@ class TokenOut(BaseModel):
 
 
 # ---------- Profile ----------
-class ProfileIn(BaseModel):
+class CustomDay(BaseModel):
+    """One day of a user-defined split, e.g. {"name": "Chest and triceps", "groups": ["chest", "arms"]}."""
+    name: str = Field(default="", max_length=40)
+    groups: list[MuscleGroup] = Field(min_length=1, max_length=4)
+
+    @field_validator("name")
+    @classmethod
+    def clean_day_name(cls, v: str) -> str:
+        v = " ".join(v.split())
+        if v and not re.fullmatch(r"[A-Za-z0-9 ,.&()'/+-]+", v):
+            raise ValueError("Day names can only contain letters, numbers and simple punctuation")
+        return v
+
+    @field_validator("groups")
+    @classmethod
+    def unique_groups(cls, v: list[str]) -> list[str]:
+        return list(dict.fromkeys(v))
+
+
+class SplitFields(BaseModel):
+    workout_split: Split = "auto"
+    custom_split: list[CustomDay] | None = Field(default=None, max_length=6)
+
+    @model_validator(mode="after")
+    def custom_needs_days(self):
+        if self.workout_split == "custom":
+            if not self.custom_split or len(self.custom_split) < 2:
+                raise ValueError("A custom split needs between 2 and 6 workout days")
+        else:
+            self.custom_split = None
+        return self
+
+
+class SplitIn(SplitFields):
+    workout_days_per_week: int | None = Field(default=None, ge=2, le=6)
+
+
+class ProfileIn(SplitFields):
     name: str = Field(min_length=2, max_length=100)
     age: int = Field(ge=13, le=100)
     gender: Gender
@@ -64,6 +103,12 @@ class ProfileIn(BaseModel):
         if not re.fullmatch(r"[A-Za-z][A-Za-z .'-]*", v):
             raise ValueError("Name can only contain letters, spaces, dots, hyphens and apostrophes")
         return v
+
+    @model_validator(mode="after")
+    def days_match_custom_split(self):
+        if self.workout_split == "custom" and self.custom_split:
+            self.workout_days_per_week = len(self.custom_split)
+        return self
 
     @model_validator(mode="after")
     def target_matches_goal(self):

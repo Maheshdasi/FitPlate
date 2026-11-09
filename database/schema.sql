@@ -151,6 +151,8 @@ CREATE TABLE user_profiles (
 	workout_level VARCHAR(20) NOT NULL, 
 	workout_days_per_week INTEGER NOT NULL, 
 	preferred_workout_type VARCHAR(20) NOT NULL, 
+	workout_split VARCHAR(20) DEFAULT 'auto' NOT NULL, 
+	custom_split JSONB, 
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	PRIMARY KEY (id), 
@@ -165,6 +167,7 @@ CREATE TABLE user_profiles (
 	CONSTRAINT ck_profile_diet CHECK (dietary_preference IN ('vegetarian', 'non_vegetarian', 'vegan', 'eggetarian')), 
 	CONSTRAINT ck_profile_level CHECK (workout_level IN ('beginner', 'intermediate', 'advanced')), 
 	CONSTRAINT ck_profile_wtype CHECK (preferred_workout_type IN ('gym', 'home', 'bodyweight', 'mixed', 'cardio')), 
+	CONSTRAINT ck_profile_split CHECK (workout_split IN ('auto', 'full_body', 'upper_lower', 'push_pull_legs', 'bro_split', 'arnold', 'custom')), 
 	UNIQUE (user_id), 
 	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
 );

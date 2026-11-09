@@ -236,12 +236,12 @@ function recommend(user, slot, date):
 
 ### 12.1 Automated API and unit tests
 
-**Result: 58 of 58 passed, with 94% code coverage** of the backend and ML layer. The tests run automatically on
+**Result: 70 of 70 passed, with 94% code coverage** of the backend and ML layer. The tests run automatically on
 GitHub Actions on every update, together with a lint check (ruff) and the ML evaluation script.
 
-- `backend/tests/test_api.py`: 33 API and integration tests against a separate PostgreSQL database (table below,
+- `backend/tests/test_api.py`: 41 API and integration tests against a separate PostgreSQL database (table below,
   plus the dashboard, water logging, history endpoints, the what-if calculator and the production server).
-- `backend/tests/test_ml.py`: 25 unit tests for the ML layer (WHO BMI cut-offs, macro totals, diet hierarchy,
+- `backend/tests/test_ml.py`: 29 unit tests for the ML layer (WHO BMI cut-offs, macro totals, diet hierarchy,
   calorie sharing between meals, ranking and portion limits, weekly splits for 2 to 6 days, varied sessions,
   regression on a known trend, cluster naming, weekly insight sentences, typo-tolerant intents, medical safety rule).
 

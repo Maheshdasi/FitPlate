@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronDown, Info, RefreshCw } from 'lucide-react'
-import { get, localDate } from '../api/client'
+import { ChevronDown, Info, LayoutGrid, RefreshCw } from 'lucide-react'
+import { get, localDate, put } from '../api/client'
+import SplitPicker, { SPLITS } from '../components/SplitPicker'
 import { ErrorNote, PageHeader, Spinner } from '../components/ui'
 import { CATEGORY_LABELS, GOALS, LEVELS } from '../utils/format'
 import useApi from '../utils/useApi'
@@ -54,6 +55,8 @@ export default function Workouts() {
   const [openDay, setOpenDay] = useState(null)
   const [rebuilding, setRebuilding] = useState(false)
   const [toast, setToast] = useState('')
+  const [picking, setPicking] = useState(false)
+  const [savingSplit, setSavingSplit] = useState(false)
   useEffect(() => { if (toast) { const t = setTimeout(() => setToast(''), 3500); return () => clearTimeout(t) } }, [toast])
 
   const rebuild = async () => {
@@ -70,6 +73,22 @@ export default function Workouts() {
     }
   }
 
+  const applySplit = async (body) => {
+    setSavingSplit(true)
+    try {
+      const fresh = await put(`/recommendations/workouts/split?date=${today}`, body)
+      setData(fresh)
+      setOpenDay(null)
+      setPicking(false)
+      setToast(fresh.split === 'auto' ? 'Your plan is back on the recommended split.'
+        : `Your plan now uses the ${SPLITS[fresh.split].label} split.`.replace(' split split', ' split'))
+    } catch (e) {
+      setToast(`Could not change the split: ${e.message}`)
+    } finally {
+      setSavingSplit(false)
+    }
+  }
+
   if (loading && !data) return <Spinner label="Building your plan…" />
   if (error) return <ErrorNote message={error} onRetry={reload} />
 
@@ -81,13 +100,23 @@ export default function Workouts() {
     <>
       {toast && <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-lg bg-ink px-4 py-2.5 text-sm font-semibold text-white shadow-lg" role="status">{toast}</div>}
       <PageHeader title="Your workout plan"
-        subtitle={`${data.days_per_week} sessions a week for ${GOALS[data.goal].toLowerCase()}, at ${LEVELS[data.level].toLowerCase()} level. Change your goal, level or days in settings and the plan updates automatically.`}
+        subtitle={`${data.days_per_week} sessions a week for ${GOALS[data.goal].toLowerCase()}, at ${LEVELS[data.level].toLowerCase()} level. Split: ${SPLITS[data.split || 'auto'].label}.`}
         actions={<>
+          <button className="btn-secondary" onClick={() => setPicking((v) => !v)} aria-expanded={picking}>
+            <LayoutGrid size={15} aria-hidden /> Change split
+          </button>
           <button className="btn-secondary" onClick={rebuild} disabled={rebuilding}>
             <RefreshCw size={15} className={rebuilding ? 'animate-spin' : ''} aria-hidden /> {rebuilding ? 'Rebuilding…' : 'Rebuild plan'}
           </button>
           <Link to="/workout-tracker" className="btn-primary">Track today's workout</Link>
         </>} />
+
+      {picking && (
+        <div className="mb-5">
+          <SplitPicker current={data.split} currentDays={data.days_per_week} currentCustom={data.custom_split}
+            saving={savingSplit} onApply={applySplit} onCancel={() => setPicking(false)} />
+        </div>
+      )}
 
       {/* Week strip */}
       <div className="grid grid-cols-7 gap-1.5 sm:gap-2" role="list" aria-label="Weekly schedule">
@@ -136,8 +165,8 @@ export default function Workouts() {
         <div>
           <p className="font-bold">How this plan was built</p>
           <p className="mt-1 text-muted">
-            <b className="text-ink">Rules</b> choose the weekly split from your number of days (for example, 4 days gives upper and lower body sessions)
-            and set sets, reps and rest from your goal and level. <b className="text-ink">Machine learning</b> then ranks exercises by cosine similarity
+            <b className="text-ink">Rules</b> lay out the weekly split you chose (or, on "Recommended", pick one from your number of days, for example
+            4 days gives upper and lower body sessions) and set sets, reps and rest from your goal and level. <b className="text-ink">Machine learning</b> then ranks exercises by cosine similarity
             between your profile and each exercise's features (difficulty, equipment, movement type, goal), and uses Maximal Marginal
             Relevance so a session doesn't repeat the same muscle. Warm up for 5 minutes before each session and stop any exercise that hurts.
           </p>

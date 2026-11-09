@@ -58,7 +58,8 @@ def profile_dict(p: UserProfile) -> dict:
     return {"name": p.name, "fitness_goal": p.fitness_goal, "dietary_preference": p.dietary_preference,
             "allergies": list(p.allergies or []), "food_preferences": p.food_preferences or "",
             "workout_level": p.workout_level, "workout_days_per_week": p.workout_days_per_week,
-            "preferred_workout_type": p.preferred_workout_type}
+            "preferred_workout_type": p.preferred_workout_type,
+            "workout_split": p.workout_split or "auto", "custom_split": p.custom_split}
 
 
 # ---------------------------------------------------------------- meals
@@ -149,7 +150,9 @@ def _plan_matches(plan: WorkoutPlan, p: UserProfile) -> bool:
     meta = plan.plan.get("profile", {})
     return (plan.days_per_week == p.workout_days_per_week and plan.level == p.workout_level
             and plan.goal == p.fitness_goal
-            and meta.get("preferred_workout_type") == p.preferred_workout_type)
+            and meta.get("preferred_workout_type") == p.preferred_workout_type
+            and meta.get("workout_split", "auto") == (p.workout_split or "auto")
+            and meta.get("custom_split") == p.custom_split)
 
 
 def active_plan(db: Session, user: User, regenerate: bool = False) -> WorkoutPlan:
@@ -168,7 +171,9 @@ def active_plan(db: Session, user: User, regenerate: bool = False) -> WorkoutPla
     db.execute(update(WorkoutPlan).where(WorkoutPlan.user_id == user.id).values(is_active=False))
     built = workout_model(db).build_plan(profile_dict(profile), variation=variation, avoid_ids=avoid_ids)
     built["variation"] = variation
-    built["profile"] = {"preferred_workout_type": profile.preferred_workout_type}
+    built["profile"] = {"preferred_workout_type": profile.preferred_workout_type,
+                        "workout_split": profile.workout_split or "auto",
+                        "custom_split": profile.custom_split}
     schedule = SCHEDULES[len(built["sessions"])]
     for session, weekday in zip(built["sessions"], schedule, strict=True):
         session["weekday"] = weekday

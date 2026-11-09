@@ -92,6 +92,21 @@ def test_weight_loss_plan_adds_cardio_and_avoids_repeated_muscles():
         assert len(set(muscles)) >= len(muscles) - 1  # MMR keeps sessions varied
 
 
+@pytest.mark.parametrize("split,expected", [
+    ("upper_lower", ["Upper body", "Lower body and core", "Upper body", "Lower body and core"]),
+    ("bro_split", ["Chest day", "Back day", "Leg day", "Shoulder day"]),
+    ("arnold", ["Chest and back", "Shoulders and arms", "Legs and core", "Chest and back"]),
+])
+def test_named_splits(split, expected):
+    titles = [t["title"] for t in weekly_split(4, "intermediate", "muscle_gain", split)]
+    assert sorted(titles) == sorted(expected) and len(titles) == 4
+
+
+def test_custom_day_shares_exercises_between_groups():
+    (day,) = weekly_split(3, "beginner", "maintenance", "custom", [{"name": "", "groups": ["chest", "arms"]}])
+    assert day["focus"] == {"chest": 3, "arms": 3} and day["title"] == "Chest, Arms"
+
+
 # ---------------------------------------------------------------- progress predictor
 def test_regression_recovers_a_known_trend():
     start = date(2026, 1, 1)

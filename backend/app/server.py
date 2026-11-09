@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import PROJECT_ROOT
-from .database import Base, engine
+from .database import init_db
 from .main import app as api
 
 DIST = (PROJECT_ROOT / "frontend" / "dist").resolve()
@@ -24,7 +24,7 @@ DIST = (PROJECT_ROOT / "frontend" / "dist").resolve()
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     # Mounted apps don't run their own startup, so create the tables here
-    Base.metadata.create_all(bind=engine)
+    init_db()
     yield
 
 
