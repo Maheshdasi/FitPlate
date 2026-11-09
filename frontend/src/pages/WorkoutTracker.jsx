@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Dumbbell, Flame, Minus, Moon, Plus, Timer, TrendingUp, Trophy } from 'lucide-react'
+import { Check, ChevronDown, Dumbbell, Flame, Minus, Moon, Play, Plus, RotateCcw, Square, Timer, TrendingUp, Trophy } from 'lucide-react'
 import { get, localDate, post } from '../api/client'
 import { EmptyState, ErrorNote, Panel, PageHeader, ProgressBar, Spinner } from '../components/ui'
 import { shortDate, weekday } from '../utils/format'
@@ -152,8 +152,20 @@ export default function WorkoutTracker() {
     if (rest && restLeft <= 0) { beep(); setRest(null) }
   }, [rest, restLeft])
 
-  const startKey = `fitplate-workout-start-${today}`
-  const started = Number(store.get(startKey)) || null
+  // Session clock { start, end } in ms, kept per day in the browser. It starts with the first ticked set (or
+  // the Start button), can be stopped, resumed or reset, and stops by itself when the session is complete.
+  const clockKey = `fitplate-workout-clock-${today}`
+  const [clock, setClockState] = useState(() => {
+    try { return JSON.parse(store.get(clockKey)) || {} } catch { return {} }
+  })
+  const setClock = (c) => { setClockState(c); store.set(clockKey, JSON.stringify(c)) }
+  const allDone = !!session && session.exercises.length > 0 && session.exercises.every((e) => done.has(e.exercise_id))
+  useEffect(() => {
+    if (allDone && clock.start && !clock.end) {
+      const c = { ...clock, end: Date.now() }
+      setClockState(c); store.set(clockKey, JSON.stringify(c))
+    }
+  }, [allDone, clock, clockKey])
 
   const save = useCallback(async (ex, list, completed) => {
     setSaving(ex.exercise_id)
@@ -186,7 +198,11 @@ export default function WorkoutTracker() {
     return { ...s, weight_kg: s.weight_kg ?? ph.weight_kg, reps: s.reps ?? ph.reps }
   }
 
-  const markStarted = () => { if (!store.get(startKey)) store.set(startKey, String(Date.now())) }
+  const markStarted = () => { if (!clock.start) setClock({ start: Date.now() }) }
+  const clockButtons = !clock.start ? [['Start', Play, () => setClock({ start: Date.now() })]]
+    : !clock.end ? [['Stop', Square, () => setClock({ ...clock, end: Date.now() })]]
+      : [['Resume', Play, () => setClock({ start: clock.start + (Date.now() - clock.end) })],
+        ['Reset', RotateCcw, () => setClock({})]]
 
   const toggleSet = (ex, i) => {
     const inf = info(ex.exercise_id)
@@ -233,7 +249,7 @@ export default function WorkoutTracker() {
   // Current streak of days with at least one completed exercise (rest days in the plan don't break it)
   const doneDates = new Set((history.data || []).map((h) => h.date))
   if (completed > 0) doneDates.add(today)
-  const elapsed = started ? Math.floor((now - started) / 1000) : 0
+  const elapsed = clock.start ? Math.floor(((clock.end || now) - clock.start) / 1000) : 0
 
   return (
     <>
@@ -260,14 +276,30 @@ export default function WorkoutTracker() {
               <ProgressBar value={completed} goal={total} height="h-2.5" />
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {[
-                  ['Duration', started ? fmtClock(elapsed) : '0:00', Timer],
+                  ['Duration', fmtClock(elapsed), Timer, clockButtons],
                   ['Volume', `${Math.round(summary.volume_kg).toLocaleString()} kg`, Dumbbell],
                   ['Sets', summary.sets_done, Check],
                   ['Records', summary.records, Trophy],
-                ].map(([label, value, Icon]) => (
+                ].map(([label, value, Icon, buttons]) => (
                   <div key={label} className="rounded-lg bg-canvas px-3 py-2">
-                    <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-muted"><Icon size={12} aria-hidden />{label}</p>
-                    <p className="num text-[17px] font-extrabold">{value}</p>
+                    <p className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
+                      <Icon size={12} aria-hidden />{label}
+                      {label === 'Duration' && clock.start && !clock.end && <span className="ml-auto h-1.5 w-1.5 animate-pulse rounded-full bg-brand-600" title="Running" />}
+                      {label === 'Duration' && clock.end && <span className="ml-auto normal-case tracking-normal">stopped</span>}
+                    </p>
+                    <div className="flex items-center justify-between gap-1">
+                      <p className="num text-[17px] font-extrabold">{value}</p>
+                      {buttons && (
+                        <div className="flex gap-1">
+                          {buttons.map(([text, BtnIcon, onClick]) => (
+                            <button key={text} onClick={onClick} aria-label={`${text} workout timer`} title={`${text} timer`}
+                              className="flex h-7 w-7 items-center justify-center rounded-md border border-line bg-white text-ink hover:border-brand-200 hover:bg-brand-50">
+                              <BtnIcon size={13} fill={text === 'Reset' ? 'none' : 'currentColor'} aria-hidden />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
