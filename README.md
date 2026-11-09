@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml"><img src="https://github.com/Maheshdasi/FitPlate/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
-  <img src="https://img.shields.io/badge/tests-70%20passing-2F7A55" alt="70 tests passing">
+  <img src="https://img.shields.io/badge/tests-80%20passing-2F7A55" alt="80 tests passing">
   <img src="https://img.shields.io/badge/coverage-94%25-2F7A55" alt="94% coverage">
   <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&amp;logoColor=white" alt="Python 3.12">
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&amp;logoColor=white" alt="FastAPI">
@@ -48,7 +48,7 @@ It is built around **everyday Indian meals** such as dal, roti, idli, paneer and
 | **Five ML techniques** | Content-based filtering, similarity ranking with MMR, linear regression, K-Means clustering and a text classifier |
 | **Weekly review in plain words** | "You stayed close to your calorie target on 5 out of 7 days", followed by practical suggestions |
 | **Offline AI assistant** | Answers from the user's own data, tolerates typos, and declines medical questions |
-| **Tested and secure** | 70 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
+| **Tested and secure** | 80 automated tests, 94% coverage, linting on every update, bcrypt passwords, JWT login, ORM-only database access |
 
 ## Contents
 
@@ -192,7 +192,8 @@ similarity. Maximal Marginal Relevance then picks a varied session so the same m
   week into a habit pattern such as "Consistent achiever" or "Getting started".
 - **Assistant**: a safety rule first declines questions about medical conditions, medicines or injuries. A classifier then
   works out what is being asked, and the answer is built from the user's targets, today's log, the meal recommender and
-  their workout plan. It runs fully offline with no paid API.
+  their workout plan. It remembers the conversation, so "I don't have peanut butter" or "something else" changes the
+  suggestion instead of repeating it. It runs fully offline with no paid API.
 </details>
 
 Full details of every formula, rule and model: [docs/ML_AND_ALGORITHMS.md](docs/ML_AND_ALGORITHMS.md)
@@ -224,7 +225,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 - All database access through the SQLAlchemy ORM, which prevents SQL injection; secrets kept in environment variables.
 
 **Quality**
-- **70 automated tests**: 41 API, security and integration tests, and 29 unit tests for the ML layer.
+- **80 automated tests**: 42 API, security and integration tests, and 38 unit tests for the ML layer.
 - **94% code coverage** of the backend and ML layer, linting with ruff, and a production build of the website.
 - All of this runs on [GitHub Actions](https://github.com/Maheshdasi/FitPlate/actions) on every update.
 
@@ -243,7 +244,7 @@ Reproduce these numbers with `python -m ml.evaluate`. They are also recomputed a
 ```
 FitPlate/
 ├── frontend/      React website: 14 pages, charts and the API client
-├── backend/       FastAPI app: routes, models, validation, security and 70 tests
+├── backend/       FastAPI app: routes, models, validation, security and 80 tests
 ├── ml/            Formulas, rules, ML models and the evaluation script
 ├── database/      PostgreSQL schema and the food, meal and exercise datasets
 ├── docs/          Project report, architecture, algorithms, API reference, setup guide

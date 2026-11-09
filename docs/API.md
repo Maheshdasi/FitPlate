@@ -281,7 +281,17 @@ Up to 12 stored weeks.
 
 ```json
 { "reply": "Today you've eaten 1366 of 2181 kcal ...", "intent": "calories_remaining",
-  "confidence": 0.88, "quick_replies": ["What should I eat for dinner?", "..."] }
+  "confidence": 0.88, "quick_replies": ["What should I eat for dinner?", "..."],
+  "context": { "intent": "calories_remaining", "avoid": [] } }
+```
+
+Follow-ups: send the `context` from the previous reply with the next message. The assistant then remembers the
+meal slot, ingredients the user doesn't have, and meals it already suggested, so "I don't have peanut butter",
+"no eggs" or "something else" refine the last suggestion instead of repeating it:
+
+```json
+{ "message": "I don't have peanut butter",
+  "context": { "intent": "meal_suggestion", "slot": "breakfast", "avoid": [], "shown": [11], "overrides": {} } }
 ```
 
 Intents: `meal_suggestion`, `calories_remaining`, `protein_query`, `workout_today`, `calorie_target`,

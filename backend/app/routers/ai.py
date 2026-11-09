@@ -61,5 +61,6 @@ def chat(data: ChatIn, user: User = Depends(get_current_user),
                    "start": weights[0].weight_kg if weights else None,
                    "target": profile.target_weight_kg},
         "prediction": prog.weight_prediction(db, user),
+        "context": data.context.model_dump() if data.context else {},
     }
     return assistant().reply(data.message, ctx)

@@ -31,6 +31,8 @@ export default function Assistant() {
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
   const [quick, setQuick] = useState(STARTERS)
+  // Conversation memory from the last reply (meal slot, ingredients to avoid, meals already shown)
+  const [context, setContext] = useState(null)
   const endRef = useRef(null)
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }) }, [messages, busy])
@@ -42,8 +44,9 @@ export default function Assistant() {
     setMessages((m) => [...m, { role: 'user', text: message }])
     setBusy(true)
     try {
-      const res = await post('/ai/chat', { message, local_date: localDate(), local_hour: new Date().getHours() })
+      const res = await post('/ai/chat', { message, context, local_date: localDate(), local_hour: new Date().getHours() })
       setMessages((m) => [...m, { role: 'assistant', text: res.reply, intent: res.intent }])
+      setContext(res.context || null)
       if (res.quick_replies) setQuick(res.quick_replies)
     } catch (e) {
       setMessages((m) => [...m, { role: 'assistant', text: e.message, error: true }])

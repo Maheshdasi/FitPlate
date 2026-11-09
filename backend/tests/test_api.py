@@ -255,6 +255,27 @@ def test_chat_meal_suggestion_respects_diet(client, auth):
     assert "chicken" not in r["reply"].lower() and "fish" not in r["reply"].lower()
 
 
+def test_chat_follow_ups_remember_the_conversation(client, auth):
+    def ask(message, context=None):
+        return client.post("/ai/chat", json={"message": message, "context": context}, headers=auth).json()
+
+    def suggested(reply):
+        return reply.split("I suggest **")[1].split("**")[0]
+
+    first = ask("Suggest a breakfast")
+    other = ask("Something else", first["context"])
+    assert other["intent"] == "meal_suggestion" and suggested(other["reply"]) != suggested(first["reply"])
+
+    no_curd = ask("I don't have curd", other["context"])
+    assert "No curd, got it" in no_curd["reply"]
+    meal = no_curd["reply"].split("I suggest ")[1].split("\nWhy")[0].lower()  # name and ingredients
+    assert "curd" not in meal and "curd" in no_curd["context"]["avoid"]
+
+    # Ingredients the user doesn't have are remembered for the next question too
+    dinner = ask("What about dinner?", no_curd["context"])
+    assert "curd" not in dinner["reply"].split("I suggest ")[1].split("\nWhy")[0].lower()
+
+
 # ---------------------------------------------------------------- dashboard, water and history
 def test_dashboard_has_everything_the_page_needs(client, auth):
     d = client.get("/dashboard", headers=auth).json()

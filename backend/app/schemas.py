@@ -239,7 +239,22 @@ class LogMealIn(BaseModel):
 
 
 # ---------- AI ----------
+class ChatContext(BaseModel):
+    """What the assistant needs to remember between messages (sent back by the website)."""
+    intent: str | None = Field(default=None, max_length=40)
+    slot: MealType | None = None
+    avoid: list[str] = Field(default=[], max_length=15)
+    shown: list[int] = Field(default=[], max_length=60)
+    overrides: dict[str, str | bool] = Field(default={}, max_length=5)
+
+    @field_validator("avoid")
+    @classmethod
+    def short_terms(cls, v: list[str]) -> list[str]:
+        return [t.strip().lower()[:40] for t in v if t.strip()]
+
+
 class ChatIn(BaseModel):
     message: str = Field(min_length=1, max_length=500)
+    context: ChatContext | None = None
     local_date: date | None = None
     local_hour: int | None = Field(default=None, ge=0, le=23)

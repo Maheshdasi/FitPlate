@@ -8,7 +8,12 @@ AI FITNESS ASSISTANT: intent classification (machine learning) +
    the user's intent from a small labelled set of example questions.
    Character n-grams make it tolerant of typos ("protien", "dinnr").
 3. Simple extractors pull out entities: meal slot, calorie number,
-   diet override (vegetarian / vegan), "high protein".
+   diet override (vegetarian / vegan), "high protein", and ingredients the
+   user doesn't have or want ("I don't have peanut butter", "no eggs").
+   A small conversation context (last meal slot, ingredients to avoid,
+   meals already suggested) is sent back with each reply, so follow-ups
+   like "I don't have peanut butter" or "something else" refine the
+   previous suggestion instead of repeating it.
 4. The answer is built from the user's own data: profile, today's food
    log, remaining calories and the meal / workout recommenders.
 
@@ -74,6 +79,24 @@ MEDICAL_PATTERN = re.compile(
 SLOT_PATTERN = re.compile(r"\b(breakfast|lunch|dinner|snack|snacks|evening|morning|tonight|night)\b", re.I)
 NUMBER_PATTERN = re.compile(r"(\d{2,4})\s*(k?cal|calories|calorie)?", re.I)
 
+# "I don't have peanut butter", "no eggs", "without oats", "ran out of milk", "I don't like the smoothie"
+AVOID_PATTERN = re.compile(
+    r"(?:\b(?:i\s+)?(?:don'?t|do\s+not|didn'?t|can'?t|cannot)\s+(?:have|like|want|eat|get|find|stand|use)"
+    r"|\bnot\s+a\s+fan\s+of|\b(?:ran|run|i'?m|am)\s+out\s+of|\bout\s+of|\ballergic\s+to"
+    r"|\bwithout|\binstead\s+of|\bexcept|\bskip|\bavoid|\bhate|\bno)\s+(?P<what>[a-z][a-z '-]*)",
+    re.I,
+)
+AVOID_STOP = re.compile(
+    r"\s*(?:\b(?:so|what|which|can|could|should|please|for|today|tonight|right now|now|at home|anymore|any more|"
+    r"in the house|instead|then|is|are|suggest|give|another|else|either|too|also|either way|left|with me)\b.*)$", re.I)
+NOT_FOOD = {"thanks", "thank you", "problem", "worries", "idea", "time", "money", "way", "clue", "one", "it", "that",
+            "this", "more", "much", "need", "longer", "meal", "food", "breakfast", "lunch", "dinner", "snack",
+            "snacks", "calories", "kcal", "protein", "workout", "gym"}
+OTHER_PATTERN = re.compile(
+    r"\b(something else|anything else|another|other (?:option|options|meal|one|idea)|different|"
+    r"show me more|more options|not that|next one|try again)\b", re.I)
+ARTICLE = re.compile(r"^(?:any|a|an|the|some|my|more|no|without)\s+", re.I)
+
 SAFETY_REPLY = (
     "I can't give medical advice, diagnose conditions or suggest treatments. "
     "For anything related to a health condition, medicine, injury or pain, please talk to a doctor "
@@ -111,19 +134,66 @@ class ChatAssistant:
         if MEDICAL_PATTERN.search(text):
             return self._out(SAFETY_REPLY, "medical_safety", 1.0)
 
+        prev = ctx.get("context") or {}
+        avoid = self.extract_avoided(text)
+        wants_other = bool(OTHER_PATTERN.search(text))
         intent, confidence = self.classify(text)
-        if confidence < 0.25:
+
+        # Follow-ups about food ("I don't have peanut butter", "something else") refine the last meal idea
+        food_followup = (avoid or wants_other) and (
+            prev.get("intent") in ("meal_suggestion", "calories_remaining")
+            or intent in ("meal_suggestion", "calories_remaining"))
+        if food_followup:
+            if intent != "calories_remaining" or prev.get("intent") == "meal_suggestion":
+                intent = "meal_suggestion"
+            confidence = max(confidence, 0.5)
+        elif confidence < 0.25:
             return self._out(
                 "I can help with meals, calories, protein, water and workouts. "
-                "Try one of the questions below.", "unknown", confidence)
+                "Try one of the questions below.", "unknown", confidence, prev)
 
+        if intent == "meal_suggestion":
+            reply, context = self._handle_meal_suggestion(text, ctx, prev, avoid, wants_other)
+            return self._out(reply, intent, confidence, context)
+        if intent == "calories_remaining":
+            reply, context = self._handle_calories_remaining(text, ctx, prev, avoid)
+            return self._out(reply, intent, confidence, context)
         handler = getattr(self, f"_handle_{intent}")
-        return self._out(handler(text, ctx), intent, confidence)
+        # Keep remembered ingredients for later food questions
+        return self._out(handler(text, ctx), intent, confidence,
+                         {"intent": intent, "avoid": prev.get("avoid", [])})
 
     @staticmethod
-    def _out(reply, intent, confidence):
+    def _out(reply, intent, confidence, context=None):
         return {"reply": reply, "intent": intent, "confidence": round(confidence, 2),
-                "quick_replies": QUICK_REPLIES}
+                "quick_replies": QUICK_REPLIES, "context": context or {}}
+
+    # ------------------------------------------------------------------
+    @staticmethod
+    def extract_avoided(text: str) -> list[str]:
+        """Ingredients the user says they don't have or don't want."""
+        found = []
+        for m in AVOID_PATTERN.finditer(text.lower().replace("\u2019", "'")):
+            chunk = AVOID_STOP.sub("", m.group("what"))
+            for part in re.split(r"\s*(?:,|\band\b|\bor\b|\bnor\b|&)\s*", chunk):
+                part = ARTICLE.sub("", part.strip(" '-"))
+                part = ARTICLE.sub("", part)
+                words = part.split()
+                if not words or len(words) > 3 or part in NOT_FOOD or words[0] in ("to", "go", "be", "do"):
+                    continue
+                if part not in found:
+                    found.append(part)
+        return found
+
+    @staticmethod
+    def _matches(term: str, text: str) -> bool:
+        """Whole-word match that also accepts simple plurals (egg / eggs, tomato / tomatoes)."""
+        stem = re.sub(r"(?:es|s)$", "", term) if len(term) > 3 else term
+        return re.search(rf"\b{re.escape(stem)}(?:s|es)?\b", text) is not None
+
+    def _uses_any(self, meal: dict, terms: list[str]) -> list[str]:
+        haystack = (meal["name"] + " " + " ".join(meal.get("ingredients") or [])).lower()
+        return [t for t in terms if self._matches(t, haystack)]
 
     # ------------------------------------------------------------------
     @staticmethod
@@ -154,25 +224,73 @@ class ChatAssistant:
                 f"{m['carbs']} g carbs, {m['fat']} g fat"
                 + (f" ({m['portion']}× portion)" if m["portion"] != 1 else ""))
 
-    def _handle_meal_suggestion(self, text, ctx):
-        slot = self._slot(text, ctx)
-        overrides = self._overrides(text)
-        meals = ctx["recommend_meals"](slot, overrides)
+    def _handle_meal_suggestion(self, text, ctx, prev=None, new_avoid=(), wants_other=False):
+        prev = prev or {}
+        followup = prev.get("intent") == "meal_suggestion"
+        explicit_slot = SLOT_PATTERN.search(text)
+        slot = self._slot(text, ctx) if explicit_slot or not followup or not prev.get("slot") else prev["slot"]
+        same_slot = followup and slot == prev.get("slot")
+
+        overrides = {**(prev.get("overrides") or {}), **self._overrides(text)} if followup else self._overrides(text)
+        avoid = list(dict.fromkeys([*(prev.get("avoid") or []), *new_avoid]))
+        shown = list(prev.get("shown") or []) if same_slot else []
+
+        all_meals = ctx["recommend_meals"](slot, overrides)
+        if not all_meals:
+            return (f"I couldn't find a {slot} option that fits your diet and allergy settings.",
+                    {"intent": "meal_suggestion", "slot": slot, "avoid": avoid, "overrides": overrides})
+
+        meals = [m for m in all_meals if not self._uses_any(m, avoid)]
+        lines = []
+        if new_avoid:
+            used = [t for t in new_avoid if any(self._uses_any(m, [t]) for m in all_meals)]
+            unused = [t for t in new_avoid if t not in used]
+            if used:
+                lines.append(f"No {self._join(used)}, got it. I'll leave out meals that use it.")
+            if unused:
+                lines.append(f"None of my {slot} ideas use {self._join(unused)}, so nothing changes there.")
         if not meals:
-            return f"I couldn't find a {slot} option that fits your diet and allergy settings."
+            lines.append(f"Every {slot} idea I have uses {self._join(avoid)}. "
+                         "Try asking for a different meal, or tell me what you do have.")
+            return ("\n".join(lines), {"intent": "meal_suggestion", "slot": slot, "avoid": avoid,
+                                       "overrides": overrides, "shown": shown})
+
+        # "Something else" (or a follow-up that removed the last pick): skip meals already suggested
+        if wants_other or (same_slot and not new_avoid):
+            fresh = [m for m in meals if m["id"] not in shown]
+            if not fresh:
+                lines.append(f"That's every {slot} idea that fits, so here they are again from the top.")
+                shown, fresh = [], meals
+            meals = fresh
+
         if overrides.get("high_protein"):
             meals = sorted(meals[:8], key=lambda m: m["protein"] / max(m["calories"], 1), reverse=True)
+        # A new "I don't have X" keeps the current pick when it doesn't need X
+        if new_avoid and same_slot and shown:
+            current = next((m for m in meals if m["id"] == shown[-1]), None)
+            if current:
+                meals = [current] + [m for m in meals if m["id"] != current["id"]]
         top = meals[0]
-        lines = [f"For {slot}, I suggest {self._format_meal(top)}.",
-                 f"Ingredients: {', '.join(top['ingredients'])}.",
-                 f"Why: {top['reasons'][0].lower()}."]
+        lines += [f"For {slot}, I suggest {self._format_meal(top)}.",
+                  f"Ingredients: {', '.join(top['ingredients'])}.",
+                  f"Why: {top['reasons'][0].lower()}."]
         if len(meals) > 1:
             lines.append("Other options: " + "; ".join(m["name"] for m in meals[1:3]) + ".")
         r = ctx["remaining"]
         lines.append(f"You have {r['calories']} kcal and {r['protein']} g protein left for today.")
-        return "\n".join(lines)
+        context = {"intent": "meal_suggestion", "slot": slot, "avoid": avoid, "overrides": overrides,
+                   "shown": [*[i for i in shown if i != top["id"]], top["id"]]}
+        return "\n".join(lines), context
 
-    def _handle_calories_remaining(self, text, ctx):
+    @staticmethod
+    def _join(items: list[str]) -> str:
+        items = list(items)
+        return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " or " + items[-1]
+
+    def _handle_calories_remaining(self, text, ctx, prev=None, new_avoid=()):
+        prev = prev or {}
+        avoid = list(dict.fromkeys([*(prev.get("avoid") or []), *new_avoid]))
+        context = {"intent": "calories_remaining", "avoid": avoid}
         r, c, t = ctx["remaining"], ctx["consumed"], ctx["targets"]
         m = NUMBER_PATTERN.search(text)
         budget = int(m.group(1)) if m and 50 <= int(m.group(1)) <= 3000 else r["calories"]
@@ -181,12 +299,13 @@ class ChatAssistant:
         if r["calories"] <= 0:
             lines.append("You've reached your calorie target. If you're hungry, choose something light "
                          "like cucumber, a clear soup or buttermilk.")
-            return "\n".join(lines)
-        foods = ctx["foods_within"](budget)
+            return "\n".join(lines), context
+        foods = [f for f in ctx["foods_within"](budget)
+                 if not any(self._matches(a, f["name"].lower()) for a in avoid)]
         lines.append(f"With about {budget} kcal, protein-friendly choices are:")
         for f in foods[:4]:
             lines.append(f"• {f['name']} ({f['serving']}): {f['calories']} kcal, {f['protein']} g protein")
-        return "\n".join(lines)
+        return "\n".join(lines), context
 
     def _handle_protein_query(self, text, ctx):
         t, c, r = ctx["targets"], ctx["consumed"], ctx["remaining"]

@@ -152,6 +152,37 @@ def test_intent_classifier_handles_typos(question, intent):
     assert ChatAssistant().classify(question)[0] == intent
 
 
+@pytest.mark.parametrize("message, expected", [
+    ("I dont have peanut butter", ["peanut butter"]),
+    ("i don\u2019t have any eggs or milk", ["eggs", "milk"]),
+    ("no eggs and no milk", ["eggs", "milk"]),
+    ("I ran out of paneer so what can I eat", ["paneer"]),
+    ("I don't have eggs either", ["eggs"]),
+    ("no thanks", []),
+    ("I don't want to work out today", []),
+    ("what should i eat for dinner", []),
+])
+def test_assistant_understands_missing_ingredients(message, expected):
+    assert ChatAssistant.extract_avoided(message) == expected
+
+
+def test_missing_ingredient_follow_up_changes_the_meal():
+    smoothie = {"id": 1, "name": "Banana peanut butter protein smoothie", "calories": 675, "protein": 50,
+                "carbs": 72, "fat": 24, "portion": 1.25, "reasons": ["Close to target"],
+                "ingredients": ["250 ml toned milk", "1 banana", "1 tbsp peanut butter"]}
+    oats = {**smoothie, "id": 2, "name": "Oats with banana and boiled eggs", "portion": 1,
+            "ingredients": ["50 g oats", "1 banana", "2 boiled eggs"]}
+    ctx = {"remaining": {"calories": 2000, "protein": 90}, "hour": 8,
+           "recommend_meals": lambda slot, overrides: [smoothie, oats]}
+    bot = ChatAssistant()
+    first = bot.reply("Suggest a breakfast", ctx)
+    assert "smoothie" in first["reply"]
+    second = bot.reply("I dont have peanut butter", {**ctx, "context": first["context"]})
+    assert second["intent"] == "meal_suggestion"
+    assert "No peanut butter, got it" in second["reply"] and "I suggest **Oats" in second["reply"]
+    assert "smoothie" not in second["reply"].lower()
+
+
 def test_medical_questions_are_caught_by_the_safety_rule():
     assert MEDICAL_PATTERN.search("Can I eat rice if I have diabetes?")
     assert MEDICAL_PATTERN.search("my knee pain after squats")
