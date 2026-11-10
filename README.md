@@ -284,9 +284,14 @@ The API documentation (Swagger) is at `/api/docs` on Render and Codespaces, or `
 | [Database schema](database/schema.sql) | Tables, constraints and indexes |
 | [Setup guide](docs/SETUP.md) | Running locally, on Codespaces and on Render |
 
-## Author
+## Team
 
-**Mahesh Dasi** ([@Maheshdasi](https://github.com/Maheshdasi))
+| Name | Roll number |
+|---|---|
+| **Mahesh Dasi** ([@Maheshdasi](https://github.com/Maheshdasi)) | 2303A54021 |
+| **Udayan Duddukuri** | 2303A54017 |
+
+**Guide:** Dr. S. Jamalaiah, Department of Computer Science and Engineering, SR University.
 Final-year B.Tech capstone project.
 
 ## License and disclaimer
