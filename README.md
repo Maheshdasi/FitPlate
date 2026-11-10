@@ -24,7 +24,8 @@
   <a href="#how-it-works"><b>How it works</b></a> |
   <a href="#results"><b>Results</b></a> |
   <a href="docs/ARCHITECTURE.md"><b>Architecture</b></a> |
-  <a href="docs/PROJECT_REPORT.md"><b>Project report</b></a>
+  <a href="docs/PROJECT_REPORT.md"><b>Project report</b></a> |
+  <a href="docs/presentations/FitPlate-First-Review.pptx"><b>Review slides</b></a>
 </p>
 
 **FitPlate** is a full-stack web application that brings fitness, nutrition, workouts and progress tracking into one place.
