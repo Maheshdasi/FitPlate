@@ -1,6 +1,10 @@
 # AI Fitness & Nutrition Platform: Project Report
 
-Final-year B.Tech capstone project.
+Final-year B.Tech capstone project, Department of Computer Science and Engineering, SR University.
+
+**Team:** Mahesh Dasi (2303A54021), Udayan Duddukuri (2303A54017)
+**Guide:** Dr. S. Jamalaiah
+
 Detailed algorithm descriptions: [ML_AND_ALGORITHMS.md](ML_AND_ALGORITHMS.md). API reference: [API.md](API.md).
 
 ---
